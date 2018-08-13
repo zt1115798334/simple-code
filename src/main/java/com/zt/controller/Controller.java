@@ -1,0 +1,214 @@
+package com.zt.controller;
+
+import com.alibaba.fastjson.JSONObject;
+import com.zt.controller.base.AbstractController;
+import com.zt.entity.ColumnTrans;
+import com.zt.entity.CommonModel;
+import com.zt.entity.Table;
+import com.zt.entity.TableTrans;
+import com.zt.service.ColumnService;
+import com.zt.service.TableService;
+import com.zt.utils.CreateJavaCode;
+import com.zt.utils.FileUtils;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.sql.SQLException;
+import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @author zhang tong
+ * date: 2018/8/11 0:06
+ * description:
+ */
+@RestController
+public class Controller extends AbstractController {
+
+    @Autowired
+    private TableService tableService;
+
+    @Autowired
+    private ColumnService columnService;
+
+    @Autowired
+    private CommonModel commonModel;
+
+    @Autowired
+    private FreeMarkerConfigurer freeMarkerConfigurer;
+
+    @PostMapping("showTable")
+    public JSONObject showTable() {
+        List<Table> tableAll = null;
+        try {
+            tableAll = tableService.findTableAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return failure();
+        }
+        return success(tableAll);
+    }
+
+    @PostMapping("showColumn")
+    public JSONObject showColumn(@RequestParam List<String> tableNames) {
+        List<Table> columnAll = null;
+        try {
+            columnAll = columnService.findColumnAll(tableNames);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return failure();
+        }
+        return success(columnAll);
+    }
+
+    @PostMapping("getTableTrans")
+    public JSONObject getTableTrans(HttpServletRequest request, HttpServletResponse response,
+                                    @RequestBody List<TableTrans> tableTrans) throws IOException, TemplateException {
+        System.out.println("tableTrans = " + tableTrans);
+        Template templateEntity = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getEntityTemplate());
+        Template templateRepository = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getRepositoryTemplate());
+        Template templateService = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getServiceTemplate());
+        Template templateServiceImpl = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getServiceImplTemplate());
+
+        for (TableTrans tableTran : tableTrans) {
+            createEntity(templateEntity, tableTran);
+            createRepository(templateRepository, tableTran);
+            createService(templateService, tableTran);
+            createServiceImpl(templateServiceImpl, tableTran);
+        }
+        String downFileName = "test";
+        response.setCharacterEncoding("utf-8");
+        response.setContentType("application/ms-word;charset=utf-8");
+        response.setHeader("Content-Disposition", "attachment; fileName=" + downFileName);
+        return success();
+    }
+
+    private void createEntity(Template templateEntity, TableTrans tableTran) throws IOException, TemplateException {
+        String packagePath = tableTran.getPackagePath();
+        String tableName = tableTran.getTableName();
+        String tableNameTrans = tableTran.getTableNameTrans();
+        List<ColumnTrans> columnTrans = tableTran.getColumnTrans();
+        StringBuilder fieldCode = new StringBuilder();
+        StringBuilder fieldGetSetCode = new StringBuilder();
+        for (ColumnTrans columnTran : columnTrans) {
+            String columnName = columnTran.getColumnName();
+            String columnType = columnTran.getColumnType();
+
+            fieldCode.append(CreateJavaCode.createField(columnType, columnName));
+            fieldCode.append(CreateJavaCode.createChangeLine());
+
+            fieldGetSetCode.append(CreateJavaCode.createGet(columnType, columnName));
+            fieldGetSetCode.append(CreateJavaCode.createChangeLine()).append(CreateJavaCode.createChangeLine());
+            fieldGetSetCode.append(CreateJavaCode.createSet(columnType, columnName));
+            fieldGetSetCode.append(CreateJavaCode.createChangeLine()).append(CreateJavaCode.createChangeLine());
+
+        }
+        JSONObject javaCode = new JSONObject();
+        String entityPackageName = packagePath + ".entity";
+        javaCode.put("entityPackageName", entityPackageName);
+        javaCode.put("tableName", tableName);
+        javaCode.put("entityName", tableNameTrans);
+        javaCode.put("fieldCode", fieldCode.toString());
+        javaCode.put("fieldGetSetCode", fieldGetSetCode.toString());
+
+
+        String targetFile = FileUtils.createFiles(entityPackageName.replace(".", "/") + File.separator + tableNameTrans + ".java");
+        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), "UTF-8"));
+        templateEntity.process(javaCode, out);
+        out.flush();
+        out.close();
+    }
+    private void createRepository(Template templateEntity, TableTrans tableTran) throws IOException, TemplateException {
+        String packagePath = tableTran.getPackagePath();
+        String entityName = tableTran.getTableNameTrans();
+
+        JSONObject javaCode = new JSONObject();
+
+        String entityPackageName = packagePath + ".entity";
+        String repositoryName = entityName + "Repository";
+        String repositoryPackageName = packagePath + ".repo";
+
+        javaCode.put("entityName", entityName);
+        javaCode.put("entityPackageName", entityPackageName);
+        javaCode.put("repositoryName", repositoryName);
+        javaCode.put("repositoryPackageName", repositoryPackageName);
+
+
+        String targetFile = FileUtils.createFiles(repositoryPackageName.replace(".", "/") + File.separator + repositoryName + ".java");
+        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), "UTF-8"));
+        templateEntity.process(javaCode, out);
+        out.flush();
+        out.close();
+    }
+
+    private void createService (Template templateEntity, TableTrans tableTran) throws IOException, TemplateException {
+        String packagePath = tableTran.getPackagePath();
+        String entityName = tableTran.getTableNameTrans();
+
+        JSONObject javaCode = new JSONObject();
+
+        String entityPackageName = packagePath + ".entity";
+        String servicePackageName = packagePath + ".service";
+
+        String serviceName = entityName + "Service";
+
+        javaCode.put("entityName", entityName);
+        javaCode.put("entityPackageName", entityPackageName);
+        javaCode.put("serviceName", serviceName);
+        javaCode.put("servicePackageName", servicePackageName);
+
+
+
+        String targetFile = FileUtils.createFiles(servicePackageName.replace(".", "/") + File.separator + serviceName + ".java");
+        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), "UTF-8"));
+        templateEntity.process(javaCode, out);
+        out.flush();
+        out.close();
+    }
+
+    private void createServiceImpl (Template templateEntity, TableTrans tableTran) throws IOException, TemplateException {
+        String packagePath = tableTran.getPackagePath();
+        String entityName = tableTran.getTableNameTrans();
+
+        JSONObject javaCode = new JSONObject();
+
+        String entityPackageName = packagePath + ".entity";
+        String repositoryPackageName = packagePath + ".repo";
+        String servicePackageName = packagePath + ".service";
+        String serviceImplPackageName = packagePath + ".service.impl";
+
+        String repositoryName = entityName + "Repository";
+        String serviceName = entityName + "Service";
+        String serviceImplName = entityName + "ServiceImpl";
+        String repositoryNameStatement = CreateJavaCode.toLowerCaseFirstOne(repositoryName);
+
+
+        javaCode.put("entityName", entityName);
+        javaCode.put("entityPackageName", entityPackageName);
+        javaCode.put("repositoryName", repositoryName);
+        javaCode.put("repositoryPackageName", repositoryPackageName);
+        javaCode.put("serviceName", serviceName);
+        javaCode.put("servicePackageName", servicePackageName);
+        javaCode.put("serviceImplPackageName", serviceImplPackageName);
+        javaCode.put("serviceImplName", serviceImplName);
+        javaCode.put("repositoryNameStatement", repositoryNameStatement);
+
+
+        String targetFile = FileUtils.createFiles(serviceImplPackageName.replace(".", "/") + File.separator + serviceName + ".java");
+        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), "UTF-8"));
+        templateEntity.process(javaCode, out);
+        out.flush();
+        out.close();
+    }
+
+}

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="/static/assets/jquery/jquery-3.1.1.min.js"></script>
+    <script src="/static/common/ajaxUtils.js"></script>
+
+</head>
+<body>
+<input type="button" id="next-1" value="获取所有表">
+<div id="step-1">
+    <table id="table-info">
+        <tr>
+            <td>
+                <input type="checkbox" class="table-name-all"/>
+            </td>
+            <td>全选</td>
+        </tr>
+    </table>
+</div>
+<input type="button" id="next-2" value="下一步">
+<div id="step-2">
+    <table id="table-column">
+
+    </table>
+</div>
+<input type="button" id="next-3" value="下一步">
+<div id="step-3" hidden>
+    路径地址为：<input type="text" value="" id="package-path">
+</div>
+<input type="button" id="next-4" value="创建文件">
+</body>
+<script>
+    $(function () {
+        //全选
+        $(".table-name-all").on('click', function () {
+            if (this.checked) {
+                $("input[name='table-name-c']").attr('checked', true);
+            } else {
+                $("input[name='table-name-c']").attr('checked', false);
+            }
+        });
+
+        //第一步
+        $("#next-1").on("click", function () {
+            showTable();
+        });
+
+        //第二步
+        $("#next-2").on("click", function () {
+            var tableNameArr = [];
+            $("input[name='table-name-c']").each(function () {
+                if ($(this).is(":checked")) {
+                    tableNameArr.push($(this).val());
+                }
+            });
+            showColumn(tableNameArr.join(","));
+        });
+
+        //第三步
+        $("#next-3").on("click", function () {
+            $("#step-3").show();
+        });
+
+        //第四步
+        $("#next-4").on("click", function () {
+            var packagePath = $("#package-path").val();
+            var tableTransArr = [];
+            $("#table-column tbody").each(function () {
+                var _this = $(this);
+                var tableName = _this.attr("id");
+                var tableNameTrans = _this.find("input.table-name-trans").val();
+                var columnNameTransArr = [];
+                var columnTypeTransArr = [];
+                _this.find("input.column-name-trans").each(function () {
+                    columnNameTransArr.push($(this).val());
+                });
+                _this.find("input.column-type-trans").each(function () {
+                    columnTypeTransArr.push($(this).val());
+                });
+
+                var columnTransArr = [];
+                for (var i = 0; i < columnNameTransArr.length; i++) {
+                    var columnTrans = {
+                        columnName: columnNameTransArr[i],
+                        columnType: columnTypeTransArr[i]
+                    };
+                    columnTransArr.push(columnTrans);
+                }
+                var tableTrans = {};
+                tableTrans.tableName = tableName;
+                tableTrans.tableNameTrans = tableNameTrans;
+                tableTrans.columnTrans = columnTransArr;
+                tableTrans.packagePath = packagePath;
+                tableTransArr.push(tableTrans);
+            });
+            getTableTrans(tableTransArr);
+        });
+
+    });
+
+
+    function showTable() {
+        var url = "/showTable";
+        var params = {};
+        execAjax(url, params, callback);
+
+        function callback(result) {
+            var data = result.data;
+            var status = result.status;
+            var msg = result.msg;
+            if (status == 0) {
+                var html = '';
+                $.each(data, function (key, val) {
+                    html += '<tr>\n' +
+                        '        <td>\n' +
+                        '            <input type="checkbox" name="table-name-c" value="' + val.tableName + '"/>\n' +
+                        '        </td>\n' +
+                        '        <td>' + val.tableName + '</td>\n' +
+                        '    </tr>';
+                });
+                $("#table-info").append(html);
+            }
+        }
+    }
+
+    function showColumn(tableNames) {
+        var url = "/showColumn";
+        var params = {
+            tableNames: tableNames
+        };
+        execAjax(url, params, callback);
+
+        function callback(result) {
+            var data = result.data;
+            var status = result.status;
+            var msg = result.msg;
+            if (status == 0) {
+                var html = '';
+                $.each(data, function (key, val) {
+                    html += '<tbody id="' + val.tableName + '"><tr>\n' +
+                        '        <td class="table-name">' + val.tableName + '</td>\n' +
+                        '        <td><input class="table-name-trans" type="text" value="' + val.tableNameTrans + '"></td>\n' +
+                        '    </tr>\n';
+                    $.each(val.columns, function (keyC, valC) {
+                        html += '<tr>\n' +
+                            '        <td>' + valC.columnName + '</td>\n' +
+                            '        <td><input class="column-name-trans" type="text" value="' + valC.columnNameTrans + '"></td>\n' +
+                            '        <td>' + valC.columnType + '</td>\n' +
+                            '        <td> <input class="column-type-trans" type="text" value="' + valC.columnTypeTrans + '"></td>\n' +
+                            '        <td>' + valC.remarks + '</td>\n' +
+                            '    </tr>';
+                    });
+                    html += '</tbody>';
+                });
+                $("#table-column").append(html);
+            }
+        }
+    }
+
+    function getTableTrans(params) {
+        var url = "/getTableTrans";
+        execAjaxJSON(url, params, callback);
+
+        function callback(result) {
+            var data = result.data;
+            var status = result.status;
+            var msg = result.msg;
+            if (status == 0) {
+
+            }
+        }
+    }
+</script>
+</html>
