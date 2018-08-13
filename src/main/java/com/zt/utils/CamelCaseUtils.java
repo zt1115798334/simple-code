@@ -33,6 +33,9 @@ public class CamelCaseUtils {
             case "VARCHAR":
                 result = "String";
                 break;
+            case "LONGTEXT":
+                result = "String";
+                break;
             case "INT":
                 result = "Integer";
                 break;

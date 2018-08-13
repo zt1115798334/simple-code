@@ -73,18 +73,23 @@
                 var tableNameTrans = _this.find("input.table-name-trans").val();
                 var columnNameTransArr = [];
                 var columnTypeTransArr = [];
+                var columnRemarksArr = [];
                 _this.find("input.column-name-trans").each(function () {
                     columnNameTransArr.push($(this).val());
                 });
                 _this.find("input.column-type-trans").each(function () {
                     columnTypeTransArr.push($(this).val());
                 });
+                _this.find("input.column-remarks-trans").each(function () {
+                    columnRemarksArr.push($(this).val());
+                });
 
                 var columnTransArr = [];
                 for (var i = 0; i < columnNameTransArr.length; i++) {
                     var columnTrans = {
                         columnName: columnNameTransArr[i],
-                        columnType: columnTypeTransArr[i]
+                        columnType: columnTypeTransArr[i],
+                        columnRemarks: columnRemarksArr[i]
                     };
                     columnTransArr.push(columnTrans);
                 }
@@ -99,7 +104,6 @@
         });
 
     });
-
 
     function showTable() {
         var url = "/showTable";
@@ -148,8 +152,8 @@
                             '        <td>' + valC.columnName + '</td>\n' +
                             '        <td><input class="column-name-trans" type="text" value="' + valC.columnNameTrans + '"></td>\n' +
                             '        <td>' + valC.columnType + '</td>\n' +
-                            '        <td> <input class="column-type-trans" type="text" value="' + valC.columnTypeTrans + '"></td>\n' +
-                            '        <td>' + valC.remarks + '</td>\n' +
+                            '        <td><input class="column-type-trans" type="text" value="' + valC.columnTypeTrans + '"></td>\n' +
+                            '        <td><input class="column-remarks-trans" type="text" value="' + valC.remarks + '"></td>\n' +
                             '    </tr>';
                     });
                     html += '</tbody>';

@@ -1,11 +1,14 @@
 package ${repositoryPackageName};
 
-import ${entityPackageName}.${entityName}
+import ${entityPackageName}.${entityName};
 import org.springframework.data.repository.CrudRepository;
 
 /**
- * @author zhangtong
- * Created by on 2017/11/29
+ * Created with IntelliJ IDEA.
+ *
+ * @author zhang tong
+ * date: ${createdTime}
+ * description:
  */
 public interface ${repositoryName} extends CrudRepository<${entityName},Long> {
 }

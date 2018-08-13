@@ -10,6 +10,7 @@ package com.zt.entity;
 public class ColumnTrans {
     private String columnName;
     private String columnType;
+    private String columnRemarks;
 
     public String getColumnName() {
         return columnName;
@@ -27,11 +28,20 @@ public class ColumnTrans {
         this.columnType = columnType;
     }
 
+    public String getColumnRemarks() {
+        return columnRemarks;
+    }
+
+    public void setColumnRemarks(String columnRemarks) {
+        this.columnRemarks = columnRemarks;
+    }
+
     @Override
     public String toString() {
         return "ColumnTrans{" +
                 "columnName='" + columnName + '\'' +
                 ", columnType='" + columnType + '\'' +
+                ", columnRemarks='" + columnRemarks + '\'' +
                 '}';
     }
 }

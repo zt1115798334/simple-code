@@ -7,7 +7,7 @@ import javax.persistence.*;
  * Created with IntelliJ IDEA.
  *
  * @author zhang tong
- * date: 2018/8/7 11:42
+ * date: ${createdTime}
  * description:
  */
 @Entity

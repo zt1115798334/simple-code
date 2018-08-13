@@ -25,14 +25,20 @@ public class CreateJavaCode {
 
     }
 
+    public static String createRemarks(String remarks) {
+        return "\t/**\n" +
+                "\t* " + remarks + "\n" +
+                "\t*/";
+    }
+
     public static String createField(String columnType, String columnName) {
-        return "\tprivate " + columnType + " " + columnName;
+        return "\tprivate " + columnType + " " + columnName + ";";
     }
 
     public static String createGet(String columnType, String columnName) {
-        columnName = toUpperCaseFirstOne(columnName);
-        return "\tpublic " + columnType + " get" + columnName + "() {\n" +
-                "\t\treturn name;\n" +
+        String columnNameUpperCase = toUpperCaseFirstOne(columnName);
+        return "\tpublic " + columnType + " get" + columnNameUpperCase + "() {\n" +
+                "\t\treturn " + columnName + ";\n" +
                 "\t}";
     }
 

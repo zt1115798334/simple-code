@@ -1,6 +1,6 @@
 package ${serviceImplPackageName};
 
-import ${entityPackageName}.${entityName}
+import ${entityPackageName}.${entityName};
 import ${repositoryPackageName}.${repositoryName};
 import ${servicePackageName}.${serviceName};
 
@@ -8,7 +8,7 @@ import ${servicePackageName}.${serviceName};
  * Created with IntelliJ IDEA.
  *
  * @author zhang tong
- * date: 2018/8/10 10:20
+ * date: ${createdTime}
  * description:
  */
 @Service

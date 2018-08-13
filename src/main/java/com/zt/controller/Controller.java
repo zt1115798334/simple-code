@@ -9,6 +9,7 @@ import com.zt.entity.TableTrans;
 import com.zt.service.ColumnService;
 import com.zt.service.TableService;
 import com.zt.utils.CreateJavaCode;
+import com.zt.utils.DateUtils;
 import com.zt.utils.FileUtils;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -79,12 +81,13 @@ public class Controller extends AbstractController {
         Template templateRepository = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getRepositoryTemplate());
         Template templateService = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getServiceTemplate());
         Template templateServiceImpl = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getServiceImplTemplate());
-
+        LocalDateTime currentDateTime = DateUtils.currentDateTime();
+        String createdTime = DateUtils.formatDateTime(currentDateTime);
         for (TableTrans tableTran : tableTrans) {
-            createEntity(templateEntity, tableTran);
-            createRepository(templateRepository, tableTran);
-            createService(templateService, tableTran);
-            createServiceImpl(templateServiceImpl, tableTran);
+            createEntity(templateEntity, tableTran,createdTime);
+            createRepository(templateRepository, tableTran,createdTime);
+            createService(templateService, tableTran,createdTime);
+            createServiceImpl(templateServiceImpl, tableTran,createdTime);
         }
         String downFileName = "test";
         response.setCharacterEncoding("utf-8");
@@ -93,7 +96,7 @@ public class Controller extends AbstractController {
         return success();
     }
 
-    private void createEntity(Template templateEntity, TableTrans tableTran) throws IOException, TemplateException {
+    private void createEntity(Template templateEntity, TableTrans tableTran,String createdTime) throws IOException, TemplateException {
         String packagePath = tableTran.getPackagePath();
         String tableName = tableTran.getTableName();
         String tableNameTrans = tableTran.getTableNameTrans();
@@ -103,9 +106,11 @@ public class Controller extends AbstractController {
         for (ColumnTrans columnTran : columnTrans) {
             String columnName = columnTran.getColumnName();
             String columnType = columnTran.getColumnType();
+            String columnRemarks = columnTran.getColumnRemarks();
 
-            fieldCode.append(CreateJavaCode.createField(columnType, columnName));
-            fieldCode.append(CreateJavaCode.createChangeLine());
+
+            fieldCode.append(CreateJavaCode.createRemarks(columnRemarks)).append(CreateJavaCode.createChangeLine());
+            fieldCode.append(CreateJavaCode.createField(columnType, columnName)).append(CreateJavaCode.createChangeLine());
 
             fieldGetSetCode.append(CreateJavaCode.createGet(columnType, columnName));
             fieldGetSetCode.append(CreateJavaCode.createChangeLine()).append(CreateJavaCode.createChangeLine());
@@ -120,6 +125,7 @@ public class Controller extends AbstractController {
         javaCode.put("entityName", tableNameTrans);
         javaCode.put("fieldCode", fieldCode.toString());
         javaCode.put("fieldGetSetCode", fieldGetSetCode.toString());
+        javaCode.put("createdTime", createdTime);
 
 
         String targetFile = FileUtils.createFiles(entityPackageName.replace(".", "/") + File.separator + tableNameTrans + ".java");
@@ -128,7 +134,7 @@ public class Controller extends AbstractController {
         out.flush();
         out.close();
     }
-    private void createRepository(Template templateEntity, TableTrans tableTran) throws IOException, TemplateException {
+    private void createRepository(Template templateEntity, TableTrans tableTran,String createdTime) throws IOException, TemplateException {
         String packagePath = tableTran.getPackagePath();
         String entityName = tableTran.getTableNameTrans();
 
@@ -142,6 +148,7 @@ public class Controller extends AbstractController {
         javaCode.put("entityPackageName", entityPackageName);
         javaCode.put("repositoryName", repositoryName);
         javaCode.put("repositoryPackageName", repositoryPackageName);
+        javaCode.put("createdTime", createdTime);
 
 
         String targetFile = FileUtils.createFiles(repositoryPackageName.replace(".", "/") + File.separator + repositoryName + ".java");
@@ -151,7 +158,7 @@ public class Controller extends AbstractController {
         out.close();
     }
 
-    private void createService (Template templateEntity, TableTrans tableTran) throws IOException, TemplateException {
+    private void createService (Template templateEntity, TableTrans tableTran,String createdTime) throws IOException, TemplateException {
         String packagePath = tableTran.getPackagePath();
         String entityName = tableTran.getTableNameTrans();
 
@@ -166,6 +173,7 @@ public class Controller extends AbstractController {
         javaCode.put("entityPackageName", entityPackageName);
         javaCode.put("serviceName", serviceName);
         javaCode.put("servicePackageName", servicePackageName);
+        javaCode.put("createdTime", createdTime);
 
 
 
@@ -176,7 +184,7 @@ public class Controller extends AbstractController {
         out.close();
     }
 
-    private void createServiceImpl (Template templateEntity, TableTrans tableTran) throws IOException, TemplateException {
+    private void createServiceImpl (Template templateEntity, TableTrans tableTran,String createdTime) throws IOException, TemplateException {
         String packagePath = tableTran.getPackagePath();
         String entityName = tableTran.getTableNameTrans();
 
@@ -202,6 +210,7 @@ public class Controller extends AbstractController {
         javaCode.put("serviceImplPackageName", serviceImplPackageName);
         javaCode.put("serviceImplName", serviceImplName);
         javaCode.put("repositoryNameStatement", repositoryNameStatement);
+        javaCode.put("createdTime", createdTime);
 
 
         String targetFile = FileUtils.createFiles(serviceImplPackageName.replace(".", "/") + File.separator + serviceName + ".java");
