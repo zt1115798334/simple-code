@@ -28,7 +28,7 @@
 <input type="button" id="next-3" value="下一步">
 <div id="step-3" hidden>
     路径地址为：<input type="text" value="" id="package-path"/>
-    是否生成 set get 方法:<input type="radio" value="is" id="set-get"/>
+    是否生成 set get 方法:<input type="checkbox" value="is" id="set-get"/>
 </div>
 <input type="button" id="next-4" value="创建文件">
 </body>
@@ -67,10 +67,7 @@
         //第四步
         $("#next-4").on("click", function () {
             var packagePath = $("#package-path").val();
-            console.log($("#set-get").length);
-            console.log($("#set-get:checked").val());
-            var setGet = $("#set-get:checked").val() !== undefined;
-            console.log(setGet);
+            var setGet = $("#set-get").is(":checked");
             var tableTransArr = [];
             $("#table-column tbody").each(function () {
                 var _this = $(this);
