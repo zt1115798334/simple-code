@@ -1,10 +1,15 @@
 server:
-  port: 8080
+  port: 8083
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/pomp?autoReconnect=true&useUnicode=true&characterEncoding=utf-8
-    username: root
-    password: root
+    url: jdbc:mysql://rds8l3889yql6705lkkepublic.mysql.rds.aliyuncs.com:3306/pomp?autoReconnect=true&useUnicode=true&characterEncoding=utf-8
+#    url: jdbc:mysql://116.62.63.211:3306/pomp_branch?characterEncoding=utf8&useSSL=false
+#    url: jdbc:mysql://localhost:3306/pomp?autoReconnect=true&useUnicode=true&characterEncoding=utf-8
+#    username: root
+    username: pmptest
+#    password: root
+    password: zkdj_yqgj2)!&
+#    password: zkdj1234.
     driver-class-name: com.mysql.jdbc.Driver
   thymeleaf:
       cache: false

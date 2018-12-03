@@ -14,6 +14,7 @@ public class TableTrans {
     private String tableName;
     private String tableNameTrans;
     private String packagePath;
+    private boolean setGet;
     private List<ColumnTrans> columnTrans;
 
     public String getTableName() {
@@ -38,6 +39,14 @@ public class TableTrans {
 
     public void setPackagePath(String packagePath) {
         this.packagePath = packagePath;
+    }
+
+    public boolean getSetGet() {
+        return setGet;
+    }
+
+    public void setSetGet(boolean setGet) {
+        this.setGet = setGet;
     }
 
     public List<ColumnTrans> getColumnTrans() {

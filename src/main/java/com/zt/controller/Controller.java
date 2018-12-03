@@ -84,10 +84,10 @@ public class Controller extends AbstractController {
         LocalDateTime currentDateTime = DateUtils.currentDateTime();
         String createdTime = DateUtils.formatDateTime(currentDateTime);
         for (TableTrans tableTran : tableTrans) {
-            createEntity(templateEntity, tableTran,createdTime);
-            createRepository(templateRepository, tableTran,createdTime);
-            createService(templateService, tableTran,createdTime);
-            createServiceImpl(templateServiceImpl, tableTran,createdTime);
+            createEntity(templateEntity, tableTran, createdTime);
+            createRepository(templateRepository, tableTran, createdTime);
+            createService(templateService, tableTran, createdTime);
+            createServiceImpl(templateServiceImpl, tableTran, createdTime);
         }
         String downFileName = "test";
         response.setCharacterEncoding("utf-8");
@@ -96,8 +96,9 @@ public class Controller extends AbstractController {
         return success();
     }
 
-    private void createEntity(Template templateEntity, TableTrans tableTran,String createdTime) throws IOException, TemplateException {
+    private void createEntity(Template templateEntity, TableTrans tableTran, String createdTime) throws IOException, TemplateException {
         String packagePath = tableTran.getPackagePath();
+        boolean setGet = tableTran.getSetGet();
         String tableName = tableTran.getTableName();
         String tableNameTrans = tableTran.getTableNameTrans();
         List<ColumnTrans> columnTrans = tableTran.getColumnTrans();
@@ -111,11 +112,12 @@ public class Controller extends AbstractController {
 
             fieldCode.append(CreateJavaCode.createRemarks(columnRemarks)).append(CreateJavaCode.createChangeLine());
             fieldCode.append(CreateJavaCode.createField(columnType, columnName)).append(CreateJavaCode.createChangeLine());
-
-            fieldGetSetCode.append(CreateJavaCode.createGet(columnType, columnName));
-            fieldGetSetCode.append(CreateJavaCode.createChangeLine()).append(CreateJavaCode.createChangeLine());
-            fieldGetSetCode.append(CreateJavaCode.createSet(columnType, columnName));
-            fieldGetSetCode.append(CreateJavaCode.createChangeLine()).append(CreateJavaCode.createChangeLine());
+            if (setGet) {
+                fieldGetSetCode.append(CreateJavaCode.createGet(columnType, columnName));
+                fieldGetSetCode.append(CreateJavaCode.createChangeLine()).append(CreateJavaCode.createChangeLine());
+                fieldGetSetCode.append(CreateJavaCode.createSet(columnType, columnName));
+                fieldGetSetCode.append(CreateJavaCode.createChangeLine()).append(CreateJavaCode.createChangeLine());
+            }
 
         }
         JSONObject javaCode = new JSONObject();
@@ -134,7 +136,8 @@ public class Controller extends AbstractController {
         out.flush();
         out.close();
     }
-    private void createRepository(Template templateEntity, TableTrans tableTran,String createdTime) throws IOException, TemplateException {
+
+    private void createRepository(Template templateEntity, TableTrans tableTran, String createdTime) throws IOException, TemplateException {
         String packagePath = tableTran.getPackagePath();
         String entityName = tableTran.getTableNameTrans();
 
@@ -158,7 +161,7 @@ public class Controller extends AbstractController {
         out.close();
     }
 
-    private void createService (Template templateEntity, TableTrans tableTran,String createdTime) throws IOException, TemplateException {
+    private void createService(Template templateEntity, TableTrans tableTran, String createdTime) throws IOException, TemplateException {
         String packagePath = tableTran.getPackagePath();
         String entityName = tableTran.getTableNameTrans();
 
@@ -176,7 +179,6 @@ public class Controller extends AbstractController {
         javaCode.put("createdTime", createdTime);
 
 
-
         String targetFile = FileUtils.createFiles(servicePackageName.replace(".", "/") + File.separator + serviceName + ".java");
         Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), "UTF-8"));
         templateEntity.process(javaCode, out);
@@ -184,7 +186,7 @@ public class Controller extends AbstractController {
         out.close();
     }
 
-    private void createServiceImpl (Template templateEntity, TableTrans tableTran,String createdTime) throws IOException, TemplateException {
+    private void createServiceImpl(Template templateEntity, TableTrans tableTran, String createdTime) throws IOException, TemplateException {
         String packagePath = tableTran.getPackagePath();
         String entityName = tableTran.getTableNameTrans();
 
@@ -213,7 +215,7 @@ public class Controller extends AbstractController {
         javaCode.put("createdTime", createdTime);
 
 
-        String targetFile = FileUtils.createFiles(serviceImplPackageName.replace(".", "/") + File.separator + serviceName + ".java");
+        String targetFile = FileUtils.createFiles(serviceImplPackageName.replace(".", "/") + File.separator + serviceImplName + ".java");
         Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), "UTF-8"));
         templateEntity.process(javaCode, out);
         out.flush();

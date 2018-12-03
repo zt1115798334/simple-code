@@ -30,23 +30,38 @@ public class CamelCaseUtils {
             case "BIGINT":
                 result = "Long";
                 break;
+
+            case "INT":
+                result = "Integer";
+                break;
+            case "INT UNSIGNED":
+                result = "Integer";
+                break;
+            case "TINYINT":
+                result = "Integer";
+                break;
+
             case "VARCHAR":
                 result = "String";
                 break;
             case "LONGTEXT":
                 result = "String";
                 break;
-            case "INT":
-                result = "Integer";
-                break;
             case "CHAR":
                 result = "String";
+                break;
+            case "TEXT":
+                result = "String";
+                break;
+
+            case "TIMESTAMP":
+                result = "LocalDateTime";
                 break;
             case "DATETIME":
                 result = "LocalDateTime";
                 break;
-            case "TINYINT":
-                result = "Integer";
+            case "DATE":
+                result = "LocalDateTime";
                 break;
         }
         return result;
