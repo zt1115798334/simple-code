@@ -1,6 +1,9 @@
 package com.zt.entity;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 /**
  * Created with IntelliJ IDEA.
@@ -65,6 +68,22 @@ public class TableTrans {
                 ", packagePath='" + packagePath + '\'' +
                 ", columnTrans=" + columnTrans +
                 '}';
+    }
+
+
+    public static void main(String[] args) {
+        ExecutorService threadPool = Executors.newFixedThreadPool(6);
+        threadPool.submit(() -> {
+            for (int i = 0; i < 10; i++) {
+                System.out.println("dddddddi = " + i);
+            }
+            for (int i = 0; i < 10; i++) {
+                System.out.println("ffffffi = " + i);
+
+            }
+            return 0;
+        });
+
     }
 }
 

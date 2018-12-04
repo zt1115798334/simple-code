@@ -63,6 +63,9 @@ public class CamelCaseUtils {
             case "DATE":
                 result = "LocalDateTime";
                 break;
+            case "TIME":
+                result = "LocalTime";
+                break;
         }
         return result;
     }
