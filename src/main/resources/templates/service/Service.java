@@ -12,6 +12,6 @@ import java.util.List;
  * date: ${createdTime}
  * description:
  */
-public interface ${serviceName} extends BaseService<${entityName}> {
+public interface ${serviceName} extends BaseService<${entityName}, ${entityId}> {
 
 }

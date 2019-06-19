@@ -3,7 +3,6 @@ package com.zt.entity;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,7 +16,7 @@ public class TableTrans {
     private String tableName;
     private String tableNameTrans;
     private String packagePath;
-    private boolean setGet;
+    private boolean lombokState;
     private List<ColumnTrans> columnTrans;
 
     public String getTableName() {
@@ -44,12 +43,12 @@ public class TableTrans {
         this.packagePath = packagePath;
     }
 
-    public boolean getSetGet() {
-        return setGet;
+    public boolean isLombokState() {
+        return lombokState;
     }
 
-    public void setSetGet(boolean setGet) {
-        this.setGet = setGet;
+    public void setLombokState(boolean lombokState) {
+        this.lombokState = lombokState;
     }
 
     public List<ColumnTrans> getColumnTrans() {

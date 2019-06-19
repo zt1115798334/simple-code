@@ -15,11 +15,12 @@ import javax.transaction.Transactional;
  * date: ${createdTime}
  * description:
  */
+${lombokAnnotation}
 @Service
 @Transactional(rollbackOn = RuntimeException.class)
 public class ${serviceImplName} implements ${serviceName} {
 
-    @Autowired
-    private ${repositoryName} ${repositoryNameStatement};
+    ${autowired}
+    private ${finalStr} ${repositoryName} ${repositoryNameStatement};
 
 }

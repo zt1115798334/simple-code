@@ -28,7 +28,7 @@
 <input type="button" id="next-3" value="下一步">
 <div id="step-3" hidden>
     路径地址为：<input type="text" value="" id="package-path"/>
-    是否生成 set get 方法:<input type="checkbox" value="is" id="set-get"/>
+    是否使用 lombokState:<input type="checkbox" value="is" id="lombokState"/>
 </div>
 <input type="button" id="next-4" value="创建文件">
 </body>
@@ -67,7 +67,7 @@
         //第四步
         $("#next-4").on("click", function () {
             var packagePath = $("#package-path").val();
-            var setGet = $("#set-get").is(":checked");
+            var lombokState = $("#lombokState").is(":checked");
             var tableTransArr = [];
             $("#table-column tbody").each(function () {
                 var _this = $(this);
@@ -100,7 +100,7 @@
                 tableTrans.tableNameTrans = tableNameTrans;
                 tableTrans.columnTrans = columnTransArr;
                 tableTrans.packagePath = packagePath;
-                tableTrans.setGet = setGet;
+                tableTrans.lombokState = lombokState;
                 tableTransArr.push(tableTrans);
             });
             getTableTrans(tableTransArr);

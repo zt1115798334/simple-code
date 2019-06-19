@@ -10,6 +10,7 @@ import javax.persistence.*;
  * date: ${createdTime}
  * description:
  */
+${lombokAnnotation}
 @Entity
 @Table(name = "${tableName}")
 public class ${entityName} {

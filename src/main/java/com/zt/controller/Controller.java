@@ -98,27 +98,46 @@ public class Controller extends AbstractController {
 
     private void createEntity(Template templateEntity, TableTrans tableTran, String createdTime) throws IOException, TemplateException {
         String packagePath = tableTran.getPackagePath();
-        boolean setGet = tableTran.getSetGet();
+        boolean lombokState = tableTran.isLombokState();
         String tableName = tableTran.getTableName();
         String tableNameTrans = tableTran.getTableNameTrans();
         List<ColumnTrans> columnTrans = tableTran.getColumnTrans();
         StringBuilder fieldCode = new StringBuilder();
         StringBuilder fieldGetSetCode = new StringBuilder();
-        for (ColumnTrans columnTran : columnTrans) {
-            String columnName = columnTran.getColumnName();
-            String columnType = columnTran.getColumnType();
-            String columnRemarks = columnTran.getColumnRemarks();
+        StringBuilder lombokAnnotation = new StringBuilder();
+        if (!lombokState) {
+            for (ColumnTrans columnTran : columnTrans) {
+                String columnName = columnTran.getColumnName();
+                String columnType = columnTran.getColumnType();
+                String columnRemarks = columnTran.getColumnRemarks();
 
 
-            fieldCode.append(CreateJavaCode.createRemarks(columnRemarks)).append(CreateJavaCode.createChangeLine());
-            fieldCode.append(CreateJavaCode.createField(columnType, columnName)).append(CreateJavaCode.createChangeLine());
-            if (setGet) {
+                fieldCode.append(CreateJavaCode.createRemarks(columnRemarks)).append(CreateJavaCode.createChangeLine());
+                fieldCode.append(CreateJavaCode.createField(columnType, columnName)).append(CreateJavaCode.createChangeLine());
+
                 fieldGetSetCode.append(CreateJavaCode.createGet(columnType, columnName));
                 fieldGetSetCode.append(CreateJavaCode.createChangeLine()).append(CreateJavaCode.createChangeLine());
                 fieldGetSetCode.append(CreateJavaCode.createSet(columnType, columnName));
                 fieldGetSetCode.append(CreateJavaCode.createChangeLine()).append(CreateJavaCode.createChangeLine());
             }
+        } else {
+            for (ColumnTrans columnTran : columnTrans) {
+                String columnName = columnTran.getColumnName();
+                String columnType = columnTran.getColumnType();
+                String columnRemarks = columnTran.getColumnRemarks();
 
+
+                fieldCode.append(CreateJavaCode.createRemarks(columnRemarks)).append(CreateJavaCode.createChangeLine());
+                fieldCode.append(CreateJavaCode.createField(columnType, columnName)).append(CreateJavaCode.createChangeLine());
+
+            }
+            lombokAnnotation.append("@NoArgsConstructor");
+            lombokAnnotation.append(CreateJavaCode.createChangeLine());
+            lombokAnnotation.append("@AllArgsConstructor");
+            lombokAnnotation.append(CreateJavaCode.createChangeLine());
+            lombokAnnotation.append("@EqualsAndHashCode(callSuper = true)");
+            lombokAnnotation.append(CreateJavaCode.createChangeLine());
+            lombokAnnotation.append("@Data");
         }
         JSONObject javaCode = new JSONObject();
         String entityPackageName = packagePath + ".entity";
@@ -127,6 +146,7 @@ public class Controller extends AbstractController {
         javaCode.put("entityName", tableNameTrans);
         javaCode.put("fieldCode", fieldCode.toString());
         javaCode.put("fieldGetSetCode", fieldGetSetCode.toString());
+        javaCode.put("lombokAnnotation", lombokAnnotation.toString());
         javaCode.put("createdTime", createdTime);
 
 
@@ -141,6 +161,7 @@ public class Controller extends AbstractController {
         String packagePath = tableTran.getPackagePath();
         String entityName = tableTran.getTableNameTrans();
 
+        boolean lombokState = tableTran.isLombokState();
         JSONObject javaCode = new JSONObject();
 
         String entityPackageName = packagePath + ".entity";
@@ -172,6 +193,7 @@ public class Controller extends AbstractController {
 
         String serviceName = entityName + "Service";
 
+        javaCode.put("entityId", "Long");
         javaCode.put("entityName", entityName);
         javaCode.put("entityPackageName", entityPackageName);
         javaCode.put("serviceName", serviceName);
@@ -189,7 +211,7 @@ public class Controller extends AbstractController {
     private void createServiceImpl(Template templateEntity, TableTrans tableTran, String createdTime) throws IOException, TemplateException {
         String packagePath = tableTran.getPackagePath();
         String entityName = tableTran.getTableNameTrans();
-
+        boolean lombokState = tableTran.isLombokState();
         JSONObject javaCode = new JSONObject();
 
         String entityPackageName = packagePath + ".entity";
@@ -201,7 +223,15 @@ public class Controller extends AbstractController {
         String serviceName = entityName + "Service";
         String serviceImplName = entityName + "ServiceImpl";
         String repositoryNameStatement = CreateJavaCode.toLowerCaseFirstOne(repositoryName);
-
+        String autowired = "";
+        String finalStr = "";
+        StringBuilder lombokAnnotation = new StringBuilder();
+        if (!lombokState) {
+            autowired = "@Autowired";
+        } else {
+            lombokAnnotation.append("@AllArgsConstructor");
+            finalStr = "final";
+        }
 
         javaCode.put("entityName", entityName);
         javaCode.put("entityPackageName", entityPackageName);
@@ -211,7 +241,10 @@ public class Controller extends AbstractController {
         javaCode.put("servicePackageName", servicePackageName);
         javaCode.put("serviceImplPackageName", serviceImplPackageName);
         javaCode.put("serviceImplName", serviceImplName);
+        javaCode.put("autowired", autowired);
+        javaCode.put("finalStr", finalStr);
         javaCode.put("repositoryNameStatement", repositoryNameStatement);
+        javaCode.put("lombokAnnotation", lombokAnnotation.toString());
         javaCode.put("createdTime", createdTime);
 
 
