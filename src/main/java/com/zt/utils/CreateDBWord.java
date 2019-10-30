@@ -25,7 +25,7 @@ public class CreateDBWord {
         System.out.println("导出成功!!!!!!!!");
     }
 
-    public static List<Table> getData() {
+    private static List<Table> getData() {
         return IntStream.range(0, 5)
                 .boxed()
                 .map(i -> {
@@ -78,7 +78,7 @@ public class CreateDBWord {
                 }).collect(Collectors.toList());
     }
 
-    public static XWPFDocument initDoc(List<JSONObject> tableList) throws Exception {
+    public static XWPFDocument initDoc(List<JSONObject> tableList) {
 
         XWPFDocument document = new XWPFDocument();
 
@@ -89,62 +89,87 @@ public class CreateDBWord {
         pageMar.setRight(BigInteger.valueOf(1200L));
         pageMar.setBottom(BigInteger.valueOf(1500L));
 
+        addCustomHeadingStyle(document, "t", 1);
+        XWPFParagraph tParagraph = document.createParagraph();
+        //设置段落居中
+        tParagraph.setAlignment(ParagraphAlignment.LEFT);
+        XWPFRun tParagraphRun = tParagraph.createRun();
+        tParagraphRun.setText("数据字典");
+        tParagraphRun.setBold(true);//加粗
+        tParagraphRun.setFontSize(30);//字体大小
+        tParagraphRun.setFontFamily("宋体");
+        tParagraph.setStyle("t");
         //============添加标题====================
         IntStream.range(0, tableList.size())
                 .boxed()
                 .forEach(i -> {
-                    createTableTitle(document, tableList.get(i), i);
+                    JSONObject table = tableList.get(i);
+                    String tableName = table.getString("tableName");
+                    String tableNameTrans = table.getString("tableNameTrans");
+                    /*XWPFParagraph firstParagraph = document.createParagraph();
+                    firstParagraph.setAlignment(ParagraphAlignment.RIGHT);//设置段落内容靠右
+                    firstParagraph.setIndentationRight(500);//末尾缩进300*/
+
+                    addCustomHeadingStyle(document, i.toString(), 2);
+                    //============添加标题====================
+                    XWPFParagraph titleParagraph = document.createParagraph();
+                    //设置段落居中
+                    titleParagraph.setAlignment(ParagraphAlignment.LEFT);
+                    XWPFRun titleParagraphRun = titleParagraph.createRun();
+                    titleParagraphRun.setText(tableName);
+                    titleParagraphRun.setBold(true);//加粗
+                    titleParagraphRun.setFontSize(15);//字体大小
+                    titleParagraphRun.setFontFamily("宋体");
+                    titleParagraphRun.addBreak();//添加一个回车空行
+                /*     XWPFRun titleSubParagraphRun = titleParagraph.createRun();
+                    titleSubParagraphRun.setText(tableName);
+                    titleSubParagraphRun.setBold(true);//加粗
+                    titleSubParagraphRun.setFontSize(22);//字体大小
+                    titleSubParagraphRun.setFontFamily("宋体");
+                    titleSubParagraphRun.addBreak();//添加一个回车空行*/
+                    titleParagraph.setStyle(i.toString());
+                    createTable(document, table.getJSONArray("cJSONList").toJavaList(JSONObject.class));
+                    document.createParagraph().createRun().addBreak();
                 });
 
         return document;
     }
 
-    private static void createTableTitle(XWPFDocument document, JSONObject table, int code) {
-        String tableName = table.getString("tableName");
-        XWPFParagraph firstParagraph = document.createParagraph();
-        firstParagraph.setAlignment(ParagraphAlignment.RIGHT);//设置段落内容靠右
-        firstParagraph.setIndentationRight(500);//末尾缩进300
-
-      /*  //============添加标题====================
-        XWPFParagraph titleParagraph = document.createParagraph();
-        //设置段落居中
-        titleParagraph.setAlignment(ParagraphAlignment.LEFT);
-        XWPFRun titleParagraphRun = titleParagraph.createRun();
-        titleParagraphRun.setText(tableName);
-        titleParagraphRun.setBold(true);//加粗
-        titleParagraphRun.setFontSize(22);//字体大小
-        titleParagraphRun.setFontFamily("宋体");
-        titleParagraphRun.addBreak();//添加一个回车空行*/
+    private static void addCustomHeadingStyle(XWPFDocument document, String strStyleId, int headingLevel) {
 
         CTStyle ctStyle = CTStyle.Factory.newInstance();
-        ctStyle.setStyleId(tableName);
+        ctStyle.setStyleId(strStyleId);
 
         CTString styleName = CTString.Factory.newInstance();
-        styleName.setVal(tableName);
+        styleName.setVal(strStyleId);
         ctStyle.setName(styleName);
-        CTDecimalNumber indentNumber = CTDecimalNumber.Factory.newInstance();
-        indentNumber.setVal(BigInteger.valueOf(code));
 
+        CTDecimalNumber indentNumber = CTDecimalNumber.Factory.newInstance();
+        indentNumber.setVal(BigInteger.valueOf(headingLevel));
+
+        // lower number > style is more prominent in the formats bar
         ctStyle.setUiPriority(indentNumber);
 
         CTOnOff ctOnOff = CTOnOff.Factory.newInstance();
         ctStyle.setUnhideWhenUsed(ctOnOff);
 
+        // style shows up in the formats bar
         ctStyle.setQFormat(ctOnOff);
 
+        // style defines a heading of the given level
         CTPPr ppr = CTPPr.Factory.newInstance();
         ppr.setOutlineLvl(indentNumber);
         ctStyle.setPPr(ppr);
 
         XWPFStyle style = new XWPFStyle(ctStyle);
 
+        // is a null op if already defined
         XWPFStyles styles = document.createStyles();
 
         style.setType(STStyleType.PARAGRAPH);
         styles.addStyle(style);
-
-        createTable(document, table.getJSONArray("cJSONList").toJavaList(JSONObject.class));
     }
+
 
     private static void createTable(XWPFDocument document, List<JSONObject> columnList) {
         //==============添加表格数据===========
@@ -200,7 +225,6 @@ public class CreateDBWord {
     private static void titleStyle(XWPFTable comTable) {
         XWPFTableRow titleRow = comTable.getRow(0);//创建的的一行一列的表格，获取第一行
         titleRow.setHeight(500);//设置当前行行高
-
         tableTitleCellData(titleRow.getCell(0), "字段名", "2700");
 
         XWPFTableCell bsCell = titleRow.addNewTableCell();//在当前行继续创建新列
@@ -233,7 +257,6 @@ public class CreateDBWord {
 
     //设置数据列样式
     private static void CellDataCss(XWPFTableCell cell, String width) {
-        /** 设置水平居中 */
         CTTc cttc = cell.getCTTc();
         CTTcPr ctPr = cttc.addNewTcPr();
         ctPr.addNewVAlign().setVal(STVerticalJc.CENTER);//上下居中
@@ -265,6 +288,7 @@ public class CreateDBWord {
     //设置表头和单位信息样式
     private static void tableTitleCellData(XWPFTableCell cell, String txt, String with) {
         //给当前列中添加段落，就是给列添加内容
+        cell.setColor("CCFFFF");
         XWPFParagraph p = cell.getParagraphs().get(0);
         XWPFRun headRun0 = p.createRun();
         headRun0.setText(txt);//设置内容
