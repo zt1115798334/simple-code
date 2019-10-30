@@ -9,34 +9,87 @@ package com.zt.entity;
  */
 public class Column {
 
+    private String tableCat;
+    private String tableSchem;
+    private String tableName;
     private String columnName;
-
     private String columnNameTrans;
-
-    private String columnType;
-
-    private String columnTypeTrans;
-
-    private Integer dataSize;
-
-    private Integer digits;
-
-    private Integer nullable;
-
+    private String dataType;
+    private String typeName;
+    private String typeNameTrans;
+    private String columnSize;
+    private String bufferLength;
+    private String decimalDigits;
+    private String numPrecRadix;
+    private String nullable;
     private String remarks;
+    private String columnDef;
+    private String sqlDataType;
+    private String sqlDatetimeSub;
+    private String charOctetLength;
+    private String ordinalPosition;
+    private String isNullable;
+    private String scopeCatalog;
+    private String scopeSchema;
+    private String scopeTable;
+    private String sourceDataType;
+    private String isAutoincrement;
+    private String isGeneratedColumn;
 
     public Column() {
     }
 
-    public Column(String columnName, String columnNameTrans, String columnType, String columnTypeTrans, Integer dataSize, Integer digits, Integer nullable, String remarks) {
+    public Column(String tableCat, String tableSchem, String tableName, String columnName, String columnNameTrans, String dataType, String typeName, String typeNameTrans, String columnSize, String bufferLength, String decimalDigits, String numPrecRadix, String nullable, String remarks, String columnDef, String sqlDataType, String sqlDatetimeSub, String charOctetLength, String ordinalPosition, String isNullable, String scopeCatalog, String scopeSchema, String scopeTable, String sourceDataType, String isAutoincrement, String isGeneratedColumn) {
+        this.tableCat = tableCat;
+        this.tableSchem = tableSchem;
+        this.tableName = tableName;
         this.columnName = columnName;
         this.columnNameTrans = columnNameTrans;
-        this.columnType = columnType;
-        this.columnTypeTrans = columnTypeTrans;
-        this.dataSize = dataSize;
-        this.digits = digits;
+        this.dataType = dataType;
+        this.typeName = typeName;
+        this.typeNameTrans = typeNameTrans;
+        this.columnSize = columnSize;
+        this.bufferLength = bufferLength;
+        this.decimalDigits = decimalDigits;
+        this.numPrecRadix = numPrecRadix;
         this.nullable = nullable;
         this.remarks = remarks;
+        this.columnDef = columnDef;
+        this.sqlDataType = sqlDataType;
+        this.sqlDatetimeSub = sqlDatetimeSub;
+        this.charOctetLength = charOctetLength;
+        this.ordinalPosition = ordinalPosition;
+        this.isNullable = isNullable;
+        this.scopeCatalog = scopeCatalog;
+        this.scopeSchema = scopeSchema;
+        this.scopeTable = scopeTable;
+        this.sourceDataType = sourceDataType;
+        this.isAutoincrement = isAutoincrement;
+        this.isGeneratedColumn = isGeneratedColumn;
+    }
+
+    public String getTableCat() {
+        return tableCat;
+    }
+
+    public void setTableCat(String tableCat) {
+        this.tableCat = tableCat;
+    }
+
+    public String getTableSchem() {
+        return tableSchem;
+    }
+
+    public void setTableSchem(String tableSchem) {
+        this.tableSchem = tableSchem;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
     }
 
     public String getColumnName() {
@@ -55,43 +108,67 @@ public class Column {
         this.columnNameTrans = columnNameTrans;
     }
 
-    public String getColumnType() {
-        return columnType;
+    public String getDataType() {
+        return dataType;
     }
 
-    public void setColumnType(String columnType) {
-        this.columnType = columnType;
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
     }
 
-    public String getColumnTypeTrans() {
-        return columnTypeTrans;
+    public String getTypeName() {
+        return typeName;
     }
 
-    public void setColumnTypeTrans(String columnTypeTrans) {
-        this.columnTypeTrans = columnTypeTrans;
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 
-    public Integer getDataSize() {
-        return dataSize;
+    public String getTypeNameTrans() {
+        return typeNameTrans;
     }
 
-    public void setDataSize(Integer dataSize) {
-        this.dataSize = dataSize;
+    public void setTypeNameTrans(String typeNameTrans) {
+        this.typeNameTrans = typeNameTrans;
     }
 
-    public Integer getDigits() {
-        return digits;
+    public String getColumnSize() {
+        return columnSize;
     }
 
-    public void setDigits(Integer digits) {
-        this.digits = digits;
+    public void setColumnSize(String columnSize) {
+        this.columnSize = columnSize;
     }
 
-    public Integer getNullable() {
+    public String getBufferLength() {
+        return bufferLength;
+    }
+
+    public void setBufferLength(String bufferLength) {
+        this.bufferLength = bufferLength;
+    }
+
+    public String getDecimalDigits() {
+        return decimalDigits;
+    }
+
+    public void setDecimalDigits(String decimalDigits) {
+        this.decimalDigits = decimalDigits;
+    }
+
+    public String getNumPrecRadix() {
+        return numPrecRadix;
+    }
+
+    public void setNumPrecRadix(String numPrecRadix) {
+        this.numPrecRadix = numPrecRadix;
+    }
+
+    public String getNullable() {
         return nullable;
     }
 
-    public void setNullable(Integer nullable) {
+    public void setNullable(String nullable) {
         this.nullable = nullable;
     }
 
@@ -103,17 +180,135 @@ public class Column {
         this.remarks = remarks;
     }
 
+    public String getColumnDef() {
+        return columnDef;
+    }
+
+    public void setColumnDef(String columnDef) {
+        this.columnDef = columnDef;
+    }
+
+    public String getSqlDataType() {
+        return sqlDataType;
+    }
+
+    public void setSqlDataType(String sqlDataType) {
+        this.sqlDataType = sqlDataType;
+    }
+
+    public String getSqlDatetimeSub() {
+        return sqlDatetimeSub;
+    }
+
+    public void setSqlDatetimeSub(String sqlDatetimeSub) {
+        this.sqlDatetimeSub = sqlDatetimeSub;
+    }
+
+    public String getCharOctetLength() {
+        return charOctetLength;
+    }
+
+    public void setCharOctetLength(String charOctetLength) {
+        this.charOctetLength = charOctetLength;
+    }
+
+    public String getOrdinalPosition() {
+        return ordinalPosition;
+    }
+
+    public void setOrdinalPosition(String ordinalPosition) {
+        this.ordinalPosition = ordinalPosition;
+    }
+
+    public String getIsNullable() {
+        return isNullable;
+    }
+
+    public void setIsNullable(String isNullable) {
+        this.isNullable = isNullable;
+    }
+
+    public String getScopeCatalog() {
+        return scopeCatalog;
+    }
+
+    public void setScopeCatalog(String scopeCatalog) {
+        this.scopeCatalog = scopeCatalog;
+    }
+
+    public String getScopeSchema() {
+        return scopeSchema;
+    }
+
+    public void setScopeSchema(String scopeSchema) {
+        this.scopeSchema = scopeSchema;
+    }
+
+    public String getScopeTable() {
+        return scopeTable;
+    }
+
+    public void setScopeTable(String scopeTable) {
+        this.scopeTable = scopeTable;
+    }
+
+    public String getSourceDataType() {
+        return sourceDataType;
+    }
+
+    public void setSourceDataType(String sourceDataType) {
+        this.sourceDataType = sourceDataType;
+    }
+
+    public String getIsAutoincrement() {
+        return isAutoincrement;
+    }
+
+    public void setIsAutoincrement(String isAutoincrement) {
+        this.isAutoincrement = isAutoincrement;
+    }
+
+    public String getIsGeneratedColumn() {
+        return isGeneratedColumn;
+    }
+
+    public void setIsGeneratedColumn(String isGeneratedColumn) {
+        this.isGeneratedColumn = isGeneratedColumn;
+    }
+
     @Override
     public String toString() {
         return "Column{" +
-                "columnName='" + columnName + '\'' +
+                "tableCat='" + tableCat + '\'' +
+                ", tableSchem='" + tableSchem + '\'' +
+                ", tableName='" + tableName + '\'' +
+                ", columnName='" + columnName + '\'' +
                 ", columnNameTrans='" + columnNameTrans + '\'' +
-                ", columnType='" + columnType + '\'' +
-                ", columnTypeTrans='" + columnTypeTrans + '\'' +
-                ", dataSize=" + dataSize +
-                ", digits=" + digits +
-                ", nullable=" + nullable +
+                ", dataType='" + dataType + '\'' +
+                ", typeName='" + typeName + '\'' +
+                ", typeNameTrans='" + typeNameTrans + '\'' +
+                ", columnSize='" + columnSize + '\'' +
+                ", bufferLength='" + bufferLength + '\'' +
+                ", decimalDigits='" + decimalDigits + '\'' +
+                ", numPrecRadix='" + numPrecRadix + '\'' +
+                ", nullable='" + nullable + '\'' +
                 ", remarks='" + remarks + '\'' +
+                ", columnDef='" + columnDef + '\'' +
+                ", sqlDataType='" + sqlDataType + '\'' +
+                ", sqlDatetimeSub='" + sqlDatetimeSub + '\'' +
+                ", charOctetLength='" + charOctetLength + '\'' +
+                ", ordinalPosition='" + ordinalPosition + '\'' +
+                ", isNullable='" + isNullable + '\'' +
+                ", scopeCatalog='" + scopeCatalog + '\'' +
+                ", scopeSchema='" + scopeSchema + '\'' +
+                ", scopeTable='" + scopeTable + '\'' +
+                ", sourceDataType='" + sourceDataType + '\'' +
+                ", isAutoincrement='" + isAutoincrement + '\'' +
+                ", isGeneratedColumn='" + isGeneratedColumn + '\'' +
                 '}';
     }
 }
+
+
+
+

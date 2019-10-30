@@ -1,15 +1,23 @@
 package com.zt;
 
-import com.zt.entity.CommonModel;
-import freemarker.template.Template;
+import com.zt.entity.Table;
+import com.zt.service.ColumnService;
+import com.zt.service.TableService;
+import com.zt.utils.CreateDBWord;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.zt.utils.CreateDBWord.getJSONData;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,14 +31,19 @@ import java.io.IOException;
 public class SimpleCodeApplicationTests {
 
     @Autowired
-    private CommonModel commonModel;
+    private TableService tableService;
 
     @Autowired
-    private FreeMarkerConfigurer freeMarkerConfigurer;
-
+    private ColumnService columnService;
     @Test
-    public void tableAll() throws IOException {
-        System.out.println(commonModel.getEntityTemplate());
-        Template templateEntity = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getEntityTemplate());
+    public void tableAll() throws Exception {
+        List<Table> tableAll = tableService.findTableAll();
+        List<String> tableNames = tableAll.stream().map(Table::getTableName).collect(Collectors.toList());
+        List<Table> tableList = columnService.findColumnAll(tableNames);
+        XWPFDocument document = CreateDBWord.initDoc(getJSONData(tableList));
+        FileOutputStream out = new FileOutputStream("d:\\部门通讯录2.docx");
+        document.write(out);
+        out.close();
+        System.out.println("导出成功!!!!!!!!");
     }
 }
