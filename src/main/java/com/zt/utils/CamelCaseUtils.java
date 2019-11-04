@@ -23,7 +23,6 @@ public class CamelCaseUtils {
         return result.toString();
     }
 
-
     public static String typeTrans(String type) {
         String result = "";
         switch (type) {
