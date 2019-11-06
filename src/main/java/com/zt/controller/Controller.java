@@ -37,17 +37,21 @@ import java.util.List;
 @RestController
 public class Controller extends AbstractController {
 
-    @Autowired
-    private TableService tableService;
+    private final TableService tableService;
+
+    private final ColumnService columnService;
+
+    private final CommonModel commonModel;
+
+    private final FreeMarkerConfigurer freeMarkerConfigurer;
 
     @Autowired
-    private ColumnService columnService;
-
-    @Autowired
-    private CommonModel commonModel;
-
-    @Autowired
-    private FreeMarkerConfigurer freeMarkerConfigurer;
+    public Controller(TableService tableService, ColumnService columnService, CommonModel commonModel, FreeMarkerConfigurer freeMarkerConfigurer) {
+        this.tableService = tableService;
+        this.columnService = columnService;
+        this.commonModel = commonModel;
+        this.freeMarkerConfigurer = freeMarkerConfigurer;
+    }
 
     @PostMapping("showTable")
     public JSONObject showTable() {
