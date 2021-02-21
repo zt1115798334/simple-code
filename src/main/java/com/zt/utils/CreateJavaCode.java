@@ -146,11 +146,12 @@ public class CreateJavaCode {
     }
 
     public static String createBaseInterfaceOfFindPage(String entityName, String entityNameStatement,
+                                                       String searchDtoName, String searchDtoNameStatement,
                                                        String repositoryNameStatement) {
         return createTab(1) + "@Override\n" +
                 createTab(1) + "@Transactional(readOnly = true, propagation = Propagation.NOT_SUPPORTED)\n" +
-                createTab(1) + "public Page<" + entityName + "> findPageByEntity(" + entityName + " " + entityNameStatement + ") {\n" +
-                createTab(2) + "Specification<" + entityName + "> specification = this.getAllSpecification(" + entityNameStatement + ");\n" +
+                createTab(1) + "public Page<" + entityName + "> findPageByEntity(" + searchDtoName + " " + searchDtoNameStatement + ") {\n" +
+                createTab(2) + "Specification<" + entityName + "> specification = this.getAllSpecification(" + searchDtoNameStatement + ");\n" +
                 createTab(2) + "Pageable pageable = PageUtils.buildPageRequest(" + entityName + ");\n" +
                 createTab(2) + "return " + repositoryNameStatement + ".findAll(specification, pageable);\n" +
                 createTab(1) + "}\n";
@@ -187,10 +188,11 @@ public class CreateJavaCode {
     }
 
     public static String createServiceImplInterfaceOfFindPage(String findEntityNamePage,
-                                                              String entityName, String entityNameStatement) {
+                                                              String entityName, String entityNameStatement,
+                                                              String searchDtoName, String searchDtoNameStatement) {
         return createTab(1) + "@Override\n" +
-                createTab(1) + "public Page<" + entityName + "> " + findEntityNamePage + "(" + entityName + " " + entityNameStatement + "){\n" +
-                createTab(2) + "return this.findPageByEntity(" + entityNameStatement + ");\n" +
+                createTab(1) + "public Page<" + entityName + "> " + findEntityNamePage + "(" + searchDtoName + " " + searchDtoNameStatement + "){\n" +
+                createTab(2) + "return this.findPageByEntity(" + searchDtoNameStatement + ");\n" +
                 createTab(1) + "}\n";
     }
 
@@ -207,8 +209,9 @@ public class CreateJavaCode {
     }
 
     public static String createServiceInterfaceOfFindPage(String findEntityNamePage,
-                                                          String entityName, String entityNameStatement) {
-        return createTab(1) + "Page<" + entityName + "> " + findEntityNamePage + "(" + entityName + " " + entityNameStatement + ");\n";
+                                                          String entityName,
+                                                          String searchDtoName, String searchDtoNameStatement) {
+        return createTab(1) + "Page<" + entityName + "> " + findEntityNamePage + "(" + searchDtoName + " " + searchDtoNameStatement + ");\n";
     }
 
     public static String createDtoChangeEntity(String entityDtoName, String entityDtoNameStatement, String entityName, String dtoChangeEntity) {
@@ -225,6 +228,18 @@ public class CreateJavaCode {
         return createTab(1) + "public static List<" + entityDtoName + "> entityChangeListDto(List<" + entityName + "> " + entityNameListStatement + ") {\n" +
                 createTab(2) + "return " + entityNameListStatement + ".stream().map(e -> " + entityDtoName + ".entityChangeDto(e, subjectList)).collect(Collectors.toList());\n" +
                 createTab(1) + "}\n";
+    }
+
+    public static String createSearchRangeSearchDto(String columnName, String columnType, String columnRemarks) {
+        return CreateJavaCode.createRemarks(columnRemarks + "--开始") + "\n" +
+                createTab(1) + "private " + columnType + " " + columnName + "Start;\n" +
+                CreateJavaCode.createRemarks(columnRemarks + "--结束") + "\n" +
+                createTab(1) + "private " + columnType + " " + columnName + "End;\n";
+    }
+
+    public static String createSearchEqualSearchDto(String columnName, String columnType, String columnRemarks) {
+        return CreateJavaCode.createRemarks(columnRemarks) + "\n" +
+                createTab(1) + "private " + columnType + " " + columnName + ";\n";
     }
 
     public static String createControllerInterfaceOfSave(String saveEntityName,
@@ -263,11 +278,12 @@ public class CreateJavaCode {
     public static String createControllerInterfaceOfFindPage(String findEntityNamePage,
                                                              String entityDtoName, String entityDtoNameStatement,
                                                              String serviceNameStatement,
-                                                             String entityName, String entityNameStatement) {
+                                                             String entityName, String entityNameStatement,
+                                                             String searchDtoName,String searchDtoNameStatement) {
         return createTab(1) + " @PostMapping(value = \"" + findEntityNamePage + "\")\n" +
-                createTab(1) + "public ResultMessage " + findEntityNamePage + "(@RequestBody " + entityDtoName + " " + entityDtoNameStatement + ") {\n" +
-                createTab(2) + "Page<" + entityName + "> " + entityNameStatement + "Page = " + serviceNameStatement + "." + findEntityNamePage + "(" + entityDtoNameStatement + ");\n" +
-                createTab(2) + "return success(searchProjectDto.getPageNumber(), searchProjectDto.getPageSize(), " + entityNameStatement + "Page.getTotalElements(),\n" +
+                createTab(1) + "public ResultMessage " + findEntityNamePage + "(@RequestBody " + searchDtoName + " " + searchDtoNameStatement + ") {\n" +
+                createTab(2) + "Page<" + entityName + "> " + entityNameStatement + "Page = " + serviceNameStatement + "." + findEntityNamePage + "(" + searchDtoNameStatement + ");\n" +
+                createTab(2) + "return success("+searchDtoNameStatement+".getPageNumber(), "+searchDtoNameStatement+".getPageSize(), " + entityNameStatement + "Page.getTotalElements(),\n" +
                 createTab(2) + "" + entityDtoName + ".entityChangeListDto(" + entityNameStatement + "Page.getContent()));\n" +
                 createTab(1) + "}\n";
     }
@@ -301,6 +317,125 @@ public class CreateJavaCode {
                 "@RequestMapping(\"api/" + entityNameStatement + "\")";
     }
 
+    public static String createImportJavaEntity(String entityPackageName, String entityName) {
+        return "import " + entityPackageName + ".base.entity.PageEntity;\n" +
+                "import lombok.AllArgsConstructor;\n" +
+                "import lombok.Data;\n" +
+                "import lombok.EqualsAndHashCode;\n" +
+                "import lombok.NoArgsConstructor;\n" +
+                "\n" +
+                "import javax.persistence.*;\n" +
+                "import java.time.LocalDateTime;";
+    }
+
+    public static String createImportJavaRepository(String entityPackageName, String entityName) {
+        return "import " + entityPackageName + "." + entityName + ";\n" +
+                "import org.springframework.data.jpa.repository.JpaSpecificationExecutor;\n" +
+                "import org.springframework.data.repository.CrudRepository;\n" +
+                "\n" +
+                "import java.util.Optional;";
+    }
+
+    public static String createImportJavaService(String packagePath,
+                                                 String entityPackageName, String entityName,
+                                                 String searchDtoPackageName, String searchDtoName) {
+        return "import " + packagePath + ".base.service.BaseService;\n" +
+                "import " + searchDtoPackageName + "." + searchDtoName + ";\n" +
+                "import " + entityPackageName + "." + entityName + ";\n" +
+                "import org.springframework.data.domain.Page;\n" +
+                "\n" +
+                "import java.util.List;";
+    }
+
+    public static String createImportJavaServiceImpl(String packagePath,
+                                                     String entityPackageName, String entityName,
+                                                     String searchDtoPackageName, String searchDtoName,
+                                                     String repositoryPackageName, String repositoryName) {
+        return "\n" +
+                "import " + packagePath + ".base.service.PageUtils;\n" +
+                "import " + entityPackageName + "." + entityName + ";\n" +
+                "import " + searchDtoPackageName + "." + searchDtoName + ";\n" +
+                "import " + packagePath + ".exception.OperationException;\n" +
+                "import " + repositoryPackageName + "." + repositoryName + ";\n" +
+                "import " + packagePath + ".service.*;\n" +
+                "import " + packagePath + ".specification.Specifications;\n" +
+                "import " + packagePath + ".utils.DateUtils;\n" +
+                "import com.google.common.base.Objects;\n" +
+                "import lombok.AllArgsConstructor;\n" +
+                "import org.apache.commons.lang3.ArrayUtils;\n" +
+                "import org.apache.commons.lang3.StringUtils;\n" +
+                "import org.springframework.data.domain.Page;\n" +
+                "import org.springframework.data.domain.PageImpl;\n" +
+                "import org.springframework.data.domain.Pageable;\n" +
+                "import org.springframework.data.jpa.domain.Specification;\n" +
+                "import org.springframework.stereotype.Service;\n" +
+                "\n" +
+                "import java.time.LocalDateTime;\n" +
+                "import java.util.Collections;\n" +
+                "import java.util.List;\n" +
+                "import java.util.Map;\n" +
+                "import java.util.Optional;\n" +
+                "import java.util.stream.Collectors;";
+    }
+
+    public static String createImportJavaDto(String packagePath,
+                                             String entityPackageName, String entityName) {
+        return "import com.alibaba.fastjson.JSONObject;\n" +
+                "import " + entityPackageName + "." + entityName + ";\n" +
+                "import " + packagePath + ".DateUtils;\n" +
+                "import com.fasterxml.jackson.annotation.JsonFormat;\n" +
+                "import com.fasterxml.jackson.annotation.JsonIgnoreProperties;\n" +
+                "import com.google.common.collect.Lists;\n" +
+                "import io.swagger.annotations.ApiModelProperty;\n" +
+                "import lombok.*;\n" +
+                "import org.springframework.format.annotation.DateTimeFormat;\n" +
+                "\n" +
+                "import java.io.Serializable;\n" +
+                "import java.time.LocalDateTime;\n" +
+                "import java.util.Collections;\n" +
+                "import java.util.List;\n" +
+                "import java.util.Optional;\n" +
+                "import java.util.stream.Collectors;";
+    }
+
+    public static String createImportJavaSearchDto() {
+        return "import com.fasterxml.jackson.annotation.JsonIgnoreProperties;\n" +
+                "import lombok.*;\n" +
+                "\n" +
+                "import java.util.List;";
+    }
+
+    public static String createImportJavaController(String packagePath,
+                                                    String entityPackageName, String entityName,
+                                                    String searchDtoPackageName, String searchDtoName,
+                                                    String servicePackageName, String serviceName) {
+        return "import " + packagePath + ".aop.SaveLog;\n" +
+                "import " + packagePath + ".base.controller.BaseResultMessage;\n" +
+                "import " + packagePath + ".base.controller.CurrentUser;\n" +
+                "import " + packagePath + ".base.controller.ResultMessage;\n" +
+                "import " + entityPackageName + ".*;\n" +
+                "import " + searchDtoPackageName + ".*;\n" +
+                "import " + servicePackageName + ".*;\n" +
+                "import com.google.common.base.Objects;\n" +
+                "import io.swagger.annotations.Api;\n" +
+                "import io.swagger.annotations.ApiImplicitParam;\n" +
+                "import io.swagger.annotations.ApiImplicitParams;\n" +
+                "import io.swagger.annotations.ApiOperation;\n" +
+                "import lombok.AllArgsConstructor;\n" +
+                "import org.springframework.data.domain.Page;\n" +
+                "import org.springframework.validation.annotation.Validated;\n" +
+                "import org.springframework.web.bind.annotation.*;\n" +
+                "\n" +
+                "import javax.servlet.http.HttpServletRequest;\n" +
+                "import java.lang.reflect.Field;\n" +
+                "import java.util.Arrays;\n" +
+                "import java.util.Collection;\n" +
+                "import java.util.Collections;\n" +
+                "import java.util.List;\n" +
+                "import java.util.function.Function;\n" +
+                "import java.util.stream.Collectors;\n" +
+                "import java.util.stream.Stream;";
+    }
 
     public static void main(String[] args) {
         String columnType = "String";

@@ -1,7 +1,8 @@
 package com.zt.entity;
 
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,26 +12,24 @@ import org.springframework.stereotype.Component;
  * date: 2018/8/13 9:21
  * description:
  */
-@Data
+@Setter
+@Getter
 @Component
-public class CommonModel {
+@ConfigurationProperties(prefix = "templates.file-path")
+public class TemplatesProperties {
 
-    @Value("${templates.file-path.entity}")
     private String entityTemplate;
 
-    @Value("${templates.file-path.repository}")
     private String repositoryTemplate;
 
-    @Value("${templates.file-path.service}")
     private String serviceTemplate;
 
-    @Value("${templates.file-path.serviceImpl}")
     private String serviceImplTemplate;
 
-    @Value("${templates.file-path.dto}")
     private String dtoTemplate;
 
-    @Value("${templates.file-path.controller}")
+    private String searchDtoTemplate;
+
     private String controllerTemplate;
 
 }

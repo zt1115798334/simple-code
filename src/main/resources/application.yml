@@ -39,9 +39,10 @@ spring:
     static-path-pattern: /static/**
 templates:
   file-path:
-    entity: entity/Entity.java
-    repository: repository/Repository.java
-    service: service/Service.java
-    serviceImpl: service/impl/ServiceImpl.java
-    dto: dto/Dto.java
-    controller: controller/Controller.java
+    entity-template: entity/Entity.java
+    repository-template: repository/Repository.java
+    service-template: service/Service.java
+    service-impl-template: service/impl/ServiceImpl.java
+    dto-template: dto/Dto.java
+    search-dto-template: dto/SearchDto.java
+    controller-template: controller/Controller.java

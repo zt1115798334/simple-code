@@ -1,4 +1,4 @@
-package ${entityPackageName};
+package ${searchDtoPackageName};
 
 ${importJava}
 /**
@@ -9,6 +9,6 @@ ${importJava}
  * description:
  */
 ${lombokAnnotation}
-public class ${entityName} extends PageEntity {
-    ${fieldCode}
+public class ${searchDtoName} extends PageDto {
+${fieldCode}
 }

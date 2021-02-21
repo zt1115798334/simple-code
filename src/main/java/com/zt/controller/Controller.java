@@ -4,9 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Objects;
 import com.zt.controller.base.AbstractController;
 import com.zt.entity.ColumnTrans;
-import com.zt.entity.CommonModel;
 import com.zt.entity.Table;
 import com.zt.entity.TableTrans;
+import com.zt.entity.TemplatesProperties;
 import com.zt.service.ColumnService;
 import com.zt.service.TableService;
 import com.zt.utils.CamelCaseUtils;
@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -44,15 +43,15 @@ public class Controller extends AbstractController {
 
     private final ColumnService columnService;
 
-    private final CommonModel commonModel;
+    private final TemplatesProperties templatesProperties;
 
     private final FreeMarkerConfigurer freeMarkerConfigurer;
 
     @Autowired
-    public Controller(TableService tableService, ColumnService columnService, CommonModel commonModel, FreeMarkerConfigurer freeMarkerConfigurer) {
+    public Controller(TableService tableService, ColumnService columnService, TemplatesProperties templatesProperties, FreeMarkerConfigurer freeMarkerConfigurer) {
         this.tableService = tableService;
         this.columnService = columnService;
-        this.commonModel = commonModel;
+        this.templatesProperties = templatesProperties;
         this.freeMarkerConfigurer = freeMarkerConfigurer;
     }
 
@@ -81,15 +80,16 @@ public class Controller extends AbstractController {
     }
 
     @PostMapping("getTableTrans")
-    public JSONObject getTableTrans(HttpServletRequest request, HttpServletResponse response,
+    public JSONObject getTableTrans(HttpServletResponse response,
                                     @RequestBody List<TableTrans> tableTrans) throws IOException, TemplateException {
         System.out.println("tableTrans = " + tableTrans);
-        Template templateEntity = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getEntityTemplate());
-        Template templateRepository = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getRepositoryTemplate());
-        Template templateService = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getServiceTemplate());
-        Template templateServiceImpl = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getServiceImplTemplate());
-        Template templateDto = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getDtoTemplate());
-        Template templateController = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getControllerTemplate());
+        Template templateEntity = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getEntityTemplate());
+        Template templateRepository = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getRepositoryTemplate());
+        Template templateService = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getServiceTemplate());
+        Template templateServiceImpl = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getServiceImplTemplate());
+        Template templateDto = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getDtoTemplate());
+        Template templateSearchDto = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getSearchDtoTemplate());
+        Template templateController = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getControllerTemplate());
         LocalDateTime currentDateTime = DateUtils.currentDateTime();
         String createdTime = DateUtils.formatDateTime(currentDateTime);
         for (TableTrans tableTran : tableTrans) {
@@ -98,6 +98,7 @@ public class Controller extends AbstractController {
             createService(templateService, tableTran, createdTime);
             createServiceImpl(templateServiceImpl, tableTran, createdTime);
             createDto(templateDto, tableTran, createdTime);
+            createSearchDto(templateSearchDto, tableTran, createdTime);
             createController(templateController, tableTran, createdTime);
         }
         String downFileName = "test";
@@ -114,8 +115,12 @@ public class Controller extends AbstractController {
         //类路径
         String entityPackageName = packagePath + ".entity";
 
+        //需要引入jar包
+        String importJava = CreateJavaCode.createImportJavaEntity(entityPackageName, entityName);
+
         //注解
         String lombokAnnotation = CreateJavaCode.createEntityAnnotation(tableName);
+
 
         //构建变量
         List<ColumnTrans> columnTrans = tableTran.getColumnTrans();
@@ -135,6 +140,7 @@ public class Controller extends AbstractController {
 
         JSONObject javaCode = new JSONObject();
         javaCode.put("entityPackageName", entityPackageName);
+        javaCode.put("importJava", importJava);
         javaCode.put("entityName", entityName);
         javaCode.put("fieldCode", fieldCode.toString());
         javaCode.put("lombokAnnotation", lombokAnnotation);
@@ -157,8 +163,8 @@ public class Controller extends AbstractController {
         //类名
         String repositoryName = entityName + "Repository";
 
-        //需要引入jar包前缀
-        String importJava = "import " + entityPackageName + "." + entityName + ";\n";
+        //需要引入jar包
+        String importJava = CreateJavaCode.createImportJavaRepository(entityPackageName, entityName);
 
         JSONObject javaCode = new JSONObject();
         javaCode.put("repositoryPackageName", repositoryPackageName);
@@ -183,6 +189,10 @@ public class Controller extends AbstractController {
         String servicePackageName = packagePath + ".service";
         //定义引入jar包前缀
         String entityPackageName = packagePath + ".entity";
+        String searchDtoPackageName = packagePath + ".dto";
+        //声明引用类
+        String searchDtoName = "Search" + entityName + "Dto";
+        String searchDtoNameStatement = CreateJavaCode.toLowerCaseFirstOne(searchDtoName);
         //类名
         String serviceName = entityName + "Service";
         //定义业务方法
@@ -192,13 +202,15 @@ public class Controller extends AbstractController {
         String findEntityNamePage = "find" + entityName + "Page";
 
         //需要引入jar包前缀
-        String importJava = "import " + entityPackageName + "." + entityName + ";\n";
+        String importJava = CreateJavaCode.createImportJavaService(packagePath,
+                entityPackageName, entityName,
+                searchDtoPackageName, searchDtoName);
 
         //接口方法
         String serviceInterface = CreateJavaCode.createServiceInterfaceOfSave(saveEntityName, entityName, entityNameStatement) + "\n" +
                 CreateJavaCode.createServiceInterfaceOfDelete(deleteEntityName) + "\n" +
                 CreateJavaCode.createServiceInterfaceOfFind(findEntityName, entityName) + "\n" +
-                CreateJavaCode.createServiceInterfaceOfFindPage(findEntityNamePage, entityName, entityNameStatement) + "\n";
+                CreateJavaCode.createServiceInterfaceOfFindPage(findEntityNamePage, entityName, searchDtoName, searchDtoNameStatement) + "\n";
 
         JSONObject javaCode = new JSONObject();
         javaCode.put("servicePackageName", servicePackageName);
@@ -227,9 +239,12 @@ public class Controller extends AbstractController {
         String entityPackageName = packagePath + ".entity";
         String repositoryPackageName = packagePath + ".repo";
         String servicePackageName = packagePath + ".service";
+        String searchDtoPackageName = packagePath + ".dto";
         //声明引用类
         String repositoryName = entityName + "Repository";
         String repositoryNameStatement = CreateJavaCode.toLowerCaseFirstOne(repositoryName);
+        String searchDtoName = "Search" + entityName + "Dto";
+        String searchDtoNameStatement = CreateJavaCode.toLowerCaseFirstOne(searchDtoName);
         //类名
         String serviceImplName = entityName + "ServiceImpl";
 
@@ -245,8 +260,10 @@ public class Controller extends AbstractController {
         String entityNameStatementDb = entityNameStatement + "Db";
         String entityNameStatementOptional = entityNameStatement + "Optional";
         //需要引入jar包前缀
-        String importJava = "import " + entityPackageName + "." + entityName + ";\n" +
-                "import " + servicePackageName + "." + serviceName + ";\n";
+        String importJava = CreateJavaCode.createImportJavaServiceImpl(packagePath,
+                entityPackageName, entityName,
+                searchDtoPackageName, searchDtoName,
+                repositoryPackageName, repositoryName);
         //注解
         String lombokAnnotation = CreateJavaCode.createServiceImplAnnotation();
         //声明接口类变量
@@ -255,11 +272,11 @@ public class Controller extends AbstractController {
         String serviceImplInterface = CreateJavaCode.createBaseInterfaceOfSave(entityName, entityNameStatement, entityNameStatementOptional, entityNameStatementDb, repositoryNameStatement, tableTran.getColumnTrans()) + "\n" +
                 CreateJavaCode.createBaseInterfaceOfDelete(entityName, entityNameStatement, entityNameStatementOptional, repositoryNameStatement) + "\n" +
                 CreateJavaCode.createBaseInterfaceOfFindNotDelete(entityName, repositoryNameStatement) + "\n" +
-                CreateJavaCode.createBaseInterfaceOfFindPage(entityName, entityNameStatement, repositoryNameStatement) + "\n" +
+                CreateJavaCode.createBaseInterfaceOfFindPage(entityName, entityNameStatement, searchDtoName, searchDtoNameStatement, repositoryNameStatement) + "\n" +
                 CreateJavaCode.createServiceImplInterfaceOfSave(saveEntityName, entityName, repositoryNameStatement) + "\n" +
                 CreateJavaCode.createServiceImplInterfaceOfDelete(deleteEntityName) + "\n" +
                 CreateJavaCode.createServiceImplInterfaceOfFind(findEntityName, entityName) + "\n" +
-                CreateJavaCode.createServiceImplInterfaceOfFindPage(findEntityNamePage, entityName, entityNameStatement) + "\n" +
+                CreateJavaCode.createServiceImplInterfaceOfFindPage(findEntityNamePage, entityName, entityNameStatement, searchDtoName, searchDtoNameStatement) + "\n" +
                 CreateJavaCode.createAllSpecification(entityName, entityNameStatement) + "\n";
 
         JSONObject javaCode = new JSONObject();
@@ -290,13 +307,13 @@ public class Controller extends AbstractController {
         //类名
         String dtoName = entityName + "Dto";
         //需要引入jar包前缀
-        String importJava = "import " + entityPackageName + "." + entityName + ";\n";
+        String importJava = CreateJavaCode.createImportJavaDto(packagePath, entityPackageName, entityName);
+
         //注解
         String lombokAnnotation = CreateJavaCode.createDtoAnnotation();
         //定义变量
         List<ColumnTrans> columnTrans = tableTran.getColumnTrans();
-        String entityDtoName = entityName + "Dto";
-        String entityDtoNameStatement = CamelCaseUtils.underlineToHump(entityDtoName);
+        String dtoNameStatement = CamelCaseUtils.underlineToHump(dtoName);
         StringBuilder fieldCode = new StringBuilder();
         StringBuilder dtoChangeEntity = new StringBuilder();
         StringBuilder entityChangeDto = new StringBuilder();
@@ -307,15 +324,15 @@ public class Controller extends AbstractController {
             if (!Objects.equal("userId", columnName) && !Objects.equal("deleteState", columnName)) {
                 fieldCode.append(CreateJavaCode.createRemarks(columnRemarks)).append(CreateJavaCode.createChangeLine());
                 fieldCode.append(CreateJavaCode.createField(columnType, columnName)).append(CreateJavaCode.createChangeLine());
-                dtoChangeEntity.append(CreateJavaCode.createTab(3)).append(".").append(columnName).append("(").append(entityDtoNameStatement).append(CreateJavaCode.createGet(columnName)).append(")").append("\n");
-                entityChangeDto.append(CreateJavaCode.createTab(3)).append(".").append(columnName).append("(").append(entityDtoNameStatement).append(CreateJavaCode.createGet(columnName)).append(")").append("\n");
+                dtoChangeEntity.append(CreateJavaCode.createTab(3)).append(".").append(columnName).append("(").append(dtoNameStatement).append(CreateJavaCode.createGet(columnName)).append(")").append("\n");
+                entityChangeDto.append(CreateJavaCode.createTab(3)).append(".").append(columnName).append("(").append(dtoNameStatement).append(CreateJavaCode.createGet(columnName)).append(")").append("\n");
             }
         }
         String entityNameListStatement = entityNameStatement + "List";
         //方法
-        String dtoFun = CreateJavaCode.createDtoChangeEntity(entityDtoName, entityDtoNameStatement, entityName, dtoChangeEntity.toString()) + "\n" +
-                CreateJavaCode.createEntityChangeDto(entityDtoName, entityDtoNameStatement, entityName, entityChangeDto.toString()) + "\n" +
-                CreateJavaCode.createEntityChangeListDto(entityDtoName, entityName, entityNameListStatement) + "\n";
+        String dtoFun = CreateJavaCode.createDtoChangeEntity(dtoName, dtoNameStatement, entityName, dtoChangeEntity.toString()) + "\n" +
+                CreateJavaCode.createEntityChangeDto(dtoName, dtoNameStatement, entityName, entityChangeDto.toString()) + "\n" +
+                CreateJavaCode.createEntityChangeListDto(dtoName, entityName, entityNameListStatement) + "\n";
 
         JSONObject javaCode = new JSONObject();
         javaCode.put("dtoPackageName", dtoPackageName);
@@ -325,7 +342,51 @@ public class Controller extends AbstractController {
         javaCode.put("fieldCode", fieldCode.toString());
         javaCode.put("dtoFun", dtoFun);
         javaCode.put("createdTime", createdTime);
-        String targetFile = FileUtils.createFiles(dtoPackageName.replace(".", "/") + File.separator + entityDtoName + ".java");
+        String targetFile = FileUtils.createFiles(dtoPackageName.replace(".", "/") + File.separator + dtoName + ".java");
+        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8));
+        templateEntity.process(javaCode, out);
+        out.flush();
+        out.close();
+    }
+
+    private void createSearchDto(Template templateEntity, TableTrans tableTran, String createdTime) throws IOException, TemplateException {
+        String packagePath = tableTran.getPackagePath();
+        String entityName = tableTran.getTableNameTrans();
+        //类路径
+        String searchDtoPackageName = packagePath + ".dto";
+        //定义引入jar包前缀
+        String entityPackageName = packagePath + ".entity";
+        //类名
+        String searchDtoName = "Search" + entityName + "Dto";
+        //需要引入jar包前缀
+        String importJava = CreateJavaCode.createImportJavaSearchDto();
+        //注解
+        String lombokAnnotation = CreateJavaCode.createDtoAnnotation();
+        //定义变量
+        List<ColumnTrans> columnTrans = tableTran.getColumnTrans();
+        StringBuilder fieldCode = new StringBuilder();
+        for (ColumnTrans columnTran : columnTrans) {
+            String columnName = columnTran.getColumnName();
+            String columnType = columnTran.getColumnType();
+            String columnRemarks = columnTran.getColumnRemarks();
+            if (!Objects.equal("userId", columnName) && !Objects.equal("deleteState", columnName)) {
+                if (columnTran.getColumnEqualSearch()) {
+                    fieldCode.append(CreateJavaCode.createSearchEqualSearchDto(columnName, columnType, columnRemarks));
+                }
+                if (columnTran.getColumnRangeSearch()) {
+                    fieldCode.append(CreateJavaCode.createSearchRangeSearchDto(columnName, columnType, columnRemarks));
+                }
+            }
+        }
+
+        JSONObject javaCode = new JSONObject();
+        javaCode.put("searchDtoPackageName", searchDtoPackageName);
+        javaCode.put("importJava", importJava);
+        javaCode.put("lombokAnnotation", lombokAnnotation);
+        javaCode.put("searchDtoName", searchDtoName);
+        javaCode.put("fieldCode", fieldCode.toString());
+        javaCode.put("createdTime", createdTime);
+        String targetFile = FileUtils.createFiles(searchDtoPackageName.replace(".", "/") + File.separator + searchDtoName + ".java");
         Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8));
         templateEntity.process(javaCode, out);
         out.flush();
@@ -341,9 +402,12 @@ public class Controller extends AbstractController {
         //定义引入jar包前缀
         String entityPackageName = packagePath + ".entity";
         String servicePackageName = packagePath + ".service";
+        String searchDtoPackageName = packagePath + ".dto";
         //声明引用类
         String serviceName = entityName + "Service";
         String serviceNameStatement = CamelCaseUtils.underlineToHump(serviceName);
+        String searchDtoName = "Search" + entityName + "Dto";
+        String searchDtoNameStatement = CreateJavaCode.toLowerCaseFirstOne(searchDtoName);
         //类名
         String controllerName = entityName + "Controller";
 
@@ -357,8 +421,10 @@ public class Controller extends AbstractController {
         String entityDtoNameStatement = CamelCaseUtils.underlineToHump(entityDtoName);
 
         //需要引入jar包前缀
-        String importJava = "import " + entityPackageName + "." + entityName + ";\n" +
-                "import " + servicePackageName + "." + serviceName + ";\n";
+        String importJava = CreateJavaCode.createImportJavaController(packagePath,
+                entityPackageName, entityName,
+                searchDtoPackageName, searchDtoName,
+                servicePackageName, serviceName);
 
         //注解
         String lombokAnnotation = CreateJavaCode.createControllerAnnotation(entityNameStatement);
@@ -370,7 +436,7 @@ public class Controller extends AbstractController {
         String controllerInterface = CreateJavaCode.createControllerInterfaceOfSave(saveEntityName, entityDtoName, entityDtoNameStatement, serviceNameStatement, entityName, entityNameStatement) + "\n" +
                 CreateJavaCode.createControllerInterfaceOfDelete(deleteEntityName, serviceNameStatement) + "\n" +
                 CreateJavaCode.createControllerInterfaceOfFind(findEntityName, entityDtoName, entityDtoNameStatement, serviceNameStatement, entityName, entityNameStatement) + "\n" +
-                CreateJavaCode.createControllerInterfaceOfFindPage(findEntityNamePage, entityDtoName, entityDtoNameStatement, serviceNameStatement, entityName, entityNameStatement) + "\n";
+                CreateJavaCode.createControllerInterfaceOfFindPage(findEntityNamePage, entityDtoName, entityDtoNameStatement, serviceNameStatement, entityName, entityNameStatement, searchDtoName, searchDtoNameStatement) + "\n";
 
         JSONObject javaCode = new JSONObject();
         javaCode.put("controllerPackageName", controllerPackageName);

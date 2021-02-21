@@ -76,6 +76,8 @@
                 var columnNameTransArr = [];
                 var columnTypeTransArr = [];
                 var columnRemarksArr = [];
+                var columnRangeSearchArr = [];
+                var columnEqualSearchArr = [];
                 _this.find("input.column-name-trans").each(function () {
                     columnNameTransArr.push($(this).val());
                 });
@@ -85,13 +87,21 @@
                 _this.find("input.column-remarks-trans").each(function () {
                     columnRemarksArr.push($(this).val());
                 });
+                _this.find("input.column-range-search").each(function () {
+                    columnRangeSearchArr.push($(this).is(':checked'));
+                });
+                _this.find("input.column-equal-search").each(function () {
+                    columnEqualSearchArr.push($(this).is(':checked'));
+                });
 
                 var columnTransArr = [];
                 for (var i = 0; i < columnNameTransArr.length; i++) {
                     var columnTrans = {
                         columnName: columnNameTransArr[i],
                         columnType: columnTypeTransArr[i],
-                        columnRemarks: columnRemarksArr[i]
+                        columnRemarks: columnRemarksArr[i],
+                        columnRangeSearch: columnRangeSearchArr[i],
+                        columnEqualSearch: columnEqualSearchArr[i]
                     };
                     columnTransArr.push(columnTrans);
                 }
@@ -157,6 +167,8 @@
                             '        <td>' + valC.typeName + '</td>\n' +
                             '        <td><input class="column-type-trans" type="text" value="' + valC.typeNameTrans + '"></td>\n' +
                             '        <td><input class="column-remarks-trans" type="text" value="' + valC.remarks + '"></td>\n' +
+                            '        <td>Range Search: <input class="column-range-search" type="checkbox"></td>\n' +
+                            '        <td>Equal Search: <input class="column-equal-search" type="checkbox"></td>\n' +
                             '    </tr>';
                     });
                     html += '</tbody>';
