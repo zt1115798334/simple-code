@@ -238,7 +238,7 @@ public class Controller extends AbstractController {
         //定义引入jar包前缀
         String entityPackageName = packagePath + ".entity";
         String repositoryPackageName = packagePath + ".repo";
-        String servicePackageName = packagePath + ".service";
+//        String servicePackageName = packagePath + ".service";
         String searchDtoPackageName = packagePath + ".dto";
         //声明引用类
         String repositoryName = entityName + "Repository";
@@ -355,7 +355,7 @@ public class Controller extends AbstractController {
         //类路径
         String searchDtoPackageName = packagePath + ".dto";
         //定义引入jar包前缀
-        String entityPackageName = packagePath + ".entity";
+//        String entityPackageName = packagePath + ".entity";
         //类名
         String searchDtoName = "Search" + entityName + "Dto";
         //需要引入jar包前缀
