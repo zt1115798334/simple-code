@@ -1,0 +1,33 @@
+server:
+  port: 8083
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      connection-timeout: 30000
+      idle-timeout: 60000
+      max-lifetime: 1800000
+      read-only: false
+  thymeleaf:
+      cache: false
+      check-template: true
+      check-template-location: true
+      enabled: true
+      encoding: UTF-8
+      excluded-view-names:
+      mode: LEGACYHTML5
+      prefix: classpath:/templates/
+      suffix: .html
+      template-resolver-order:
+        servlet:
+        content-type: text/html
+  mvc:
+    static-path-pattern: /static/**
+templates:
+  file-path:
+    entity: entity/Entity.java
+    repository: repository/Repository.java
+    service: service/Service.java
+    serviceImpl: service/impl/ServiceImpl.java

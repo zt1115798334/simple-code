@@ -10,5 +10,8 @@ import org.springframework.data.repository.CrudRepository;
  * date: ${createdTime}
  * description:
  */
-public interface ${repositoryName} extends CrudRepository<${entityName},Long> {
+public interface ${repositoryName} extends CrudRepository<${entityName},Long>, JpaSpecificationExecutor<${entityName}> {
+
+        Optional<${entityName}> findByIdAndDeleteState(Long id, Integer deleteState);
+
 }

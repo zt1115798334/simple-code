@@ -1,5 +1,6 @@
 package com.zt.entity;
 
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
  * date: 2018/8/13 9:21
  * description:
  */
+@Data
 @Component
 public class CommonModel {
 
@@ -25,35 +27,7 @@ public class CommonModel {
     @Value("${templates.file-path.serviceImpl}")
     private String serviceImplTemplate;
 
-    public String getEntityTemplate() {
-        return entityTemplate;
-    }
+    @Value("${templates.file-path.dto}")
+    private String dtoTemplate;
 
-    public void setEntityTemplate(String entityTemplate) {
-        this.entityTemplate = entityTemplate;
-    }
-
-    public String getRepositoryTemplate() {
-        return repositoryTemplate;
-    }
-
-    public void setRepositoryTemplate(String repositoryTemplate) {
-        this.repositoryTemplate = repositoryTemplate;
-    }
-
-    public String getServiceTemplate() {
-        return serviceTemplate;
-    }
-
-    public void setServiceTemplate(String serviceTemplate) {
-        this.serviceTemplate = serviceTemplate;
-    }
-
-    public String getServiceImplTemplate() {
-        return serviceImplTemplate;
-    }
-
-    public void setServiceImplTemplate(String serviceImplTemplate) {
-        this.serviceImplTemplate = serviceImplTemplate;
-    }
 }

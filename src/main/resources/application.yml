@@ -3,20 +3,20 @@ server:
 spring:
   datasource:
 #    url: jdbc:mysql://rds8l3889yql6705lkkepublic.mysql.rds.aliyuncs.com:3306/pomp?autoReconnect=true&useUnicode=true&characterEncoding=utf-8
-    url: jdbc:mysql://47.97.221.191:3306/pomp?characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+#    url: jdbc:mysql://rm-bp1d3ra3968332d9ixo.mysql.rds.aliyuncs.com:3306/pomptest?characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
 #    url: jdbc:mysql://rds8l3889yql6705lkkepublic.mysql.rds.aliyuncs.com:3306/spiderserver?characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
 #    url: jdbc:mysql://152.136.145.193:3306/free_school?characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
 #    url: jdbc:mysql://116.62.153.127:3306/thesaurus_test?characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
-#    url: jdbc:mysql://127.0.0.1:3306/market-dev?characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://127.0.0.1:3306/pomp?characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
     username: root
 #    username: spiderserver
 #    username: pmptest
 #    password: zkdj1234.
-#    password: root
+    password: root
 #    password: School@2018
 #    password: zkdj_yqgj2)!&
 #    password: salkdgj3535aslfdkj67
-    password: Zkdj@123?
+#    password: Zkdj@123?
     hikari:
       connection-timeout: 30000
       idle-timeout: 60000
@@ -43,3 +43,4 @@ templates:
     repository: repository/Repository.java
     service: service/Service.java
     serviceImpl: service/impl/ServiceImpl.java
+    dto: dto/Dto.java

@@ -1,6 +1,7 @@
 package com.zt.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Objects;
 import com.zt.controller.base.AbstractController;
 import com.zt.entity.ColumnTrans;
 import com.zt.entity.CommonModel;
@@ -8,6 +9,7 @@ import com.zt.entity.Table;
 import com.zt.entity.TableTrans;
 import com.zt.service.ColumnService;
 import com.zt.service.TableService;
+import com.zt.utils.CamelCaseUtils;
 import com.zt.utils.CreateJavaCode;
 import com.zt.utils.DateUtils;
 import com.zt.utils.FileUtils;
@@ -23,6 +25,7 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -55,7 +58,7 @@ public class Controller extends AbstractController {
 
     @PostMapping("showTable")
     public JSONObject showTable() {
-        List<Table> tableAll = null;
+        List<Table> tableAll;
         try {
             tableAll = tableService.findTableAll();
         } catch (SQLException e) {
@@ -67,7 +70,7 @@ public class Controller extends AbstractController {
 
     @PostMapping("showColumn")
     public JSONObject showColumn(@RequestParam List<String> tableNames) {
-        List<Table> columnAll = null;
+        List<Table> columnAll;
         try {
             columnAll = columnService.findColumnAll(tableNames);
         } catch (SQLException e) {
@@ -85,6 +88,7 @@ public class Controller extends AbstractController {
         Template templateRepository = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getRepositoryTemplate());
         Template templateService = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getServiceTemplate());
         Template templateServiceImpl = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getServiceImplTemplate());
+        Template templateDto = freeMarkerConfigurer.getConfiguration().getTemplate(commonModel.getDtoTemplate());
         LocalDateTime currentDateTime = DateUtils.currentDateTime();
         String createdTime = DateUtils.formatDateTime(currentDateTime);
         for (TableTrans tableTran : tableTrans) {
@@ -92,6 +96,7 @@ public class Controller extends AbstractController {
             createRepository(templateRepository, tableTran, createdTime);
             createService(templateService, tableTran, createdTime);
             createServiceImpl(templateServiceImpl, tableTran, createdTime);
+            createDto(templateDto, tableTran, createdTime);
         }
         String downFileName = "test";
         response.setCharacterEncoding("utf-8");
@@ -114,14 +119,12 @@ public class Controller extends AbstractController {
                 String columnName = columnTran.getColumnName();
                 String columnType = columnTran.getColumnType();
                 String columnRemarks = columnTran.getColumnRemarks();
-
-
                 fieldCode.append(CreateJavaCode.createRemarks(columnRemarks)).append(CreateJavaCode.createChangeLine());
                 fieldCode.append(CreateJavaCode.createField(columnType, columnName)).append(CreateJavaCode.createChangeLine());
 
-                fieldGetSetCode.append(CreateJavaCode.createGet(columnType, columnName));
+                fieldGetSetCode.append(CreateJavaCode.createGetFun(columnType, columnName));
                 fieldGetSetCode.append(CreateJavaCode.createChangeLine()).append(CreateJavaCode.createChangeLine());
-                fieldGetSetCode.append(CreateJavaCode.createSet(columnType, columnName));
+                fieldGetSetCode.append(CreateJavaCode.createSetFun(columnType, columnName));
                 fieldGetSetCode.append(CreateJavaCode.createChangeLine()).append(CreateJavaCode.createChangeLine());
             }
         } else {
@@ -155,7 +158,7 @@ public class Controller extends AbstractController {
 
 
         String targetFile = FileUtils.createFiles(entityPackageName.replace(".", "/") + File.separator + tableNameTrans + ".java");
-        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), "UTF-8"));
+        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8));
         templateEntity.process(javaCode, out);
         out.flush();
         out.close();
@@ -196,9 +199,20 @@ public class Controller extends AbstractController {
         String servicePackageName = packagePath + ".service";
 
         String serviceName = entityName + "Service";
+        String entityNameStatement = CamelCaseUtils.underlineToHump(entityName);
+        String saveEntityName = "save" + entityName;
+        String deleteEntityName = "delete" + entityName;
+        String findEntityName = "find" + entityName;
+        String findEntityNamePage = "find" + entityName + "Page";
 
         javaCode.put("entityId", "Long");
         javaCode.put("entityName", entityName);
+        javaCode.put("entityNameHump", CreateJavaCode.toLowerCaseFirstOne(entityName));
+        javaCode.put("entityNameStatement", entityNameStatement);
+        javaCode.put("saveEntityName", saveEntityName);
+        javaCode.put("deleteEntityName", deleteEntityName);
+        javaCode.put("findEntityName", findEntityName);
+        javaCode.put("findEntityNamePage", findEntityNamePage);
         javaCode.put("entityPackageName", entityPackageName);
         javaCode.put("serviceName", serviceName);
         javaCode.put("servicePackageName", servicePackageName);
@@ -206,7 +220,7 @@ public class Controller extends AbstractController {
 
 
         String targetFile = FileUtils.createFiles(servicePackageName.replace(".", "/") + File.separator + serviceName + ".java");
-        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), "UTF-8"));
+        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8));
         templateEntity.process(javaCode, out);
         out.flush();
         out.close();
@@ -216,16 +230,25 @@ public class Controller extends AbstractController {
         String packagePath = tableTran.getPackagePath();
         String entityName = tableTran.getTableNameTrans();
         boolean lombokState = tableTran.isLombokState();
+        List<ColumnTrans> columnTrans = tableTran.getColumnTrans();
         JSONObject javaCode = new JSONObject();
+
+        StringBuilder entitySaveLogic = new StringBuilder();
 
         String entityPackageName = packagePath + ".entity";
         String repositoryPackageName = packagePath + ".repo";
         String servicePackageName = packagePath + ".service";
         String serviceImplPackageName = packagePath + ".service.impl";
-
         String repositoryName = entityName + "Repository";
         String serviceName = entityName + "Service";
         String serviceImplName = entityName + "ServiceImpl";
+        String entityNameStatement = CamelCaseUtils.underlineToHump(entityName);
+        String entityNameStatementDb = entityNameStatement + "Db";
+        String entityNameStatementOptional = entityNameStatement + "Optional";
+        String saveEntityName = "save" + entityName;
+        String deleteEntityName = "delete" + entityName;
+        String findEntityName = "find" + entityName;
+        String findEntityNamePage = "find" + entityName + "Page";
         String repositoryNameStatement = CreateJavaCode.toLowerCaseFirstOne(repositoryName);
         String autowired = "";
         String finalStr = "";
@@ -238,6 +261,14 @@ public class Controller extends AbstractController {
         }
 
         javaCode.put("entityName", entityName);
+        javaCode.put("entityNameHump", CreateJavaCode.toLowerCaseFirstOne(entityName));
+        javaCode.put("entityNameStatement", entityNameStatement);
+        javaCode.put("entityNameStatementDb", entityNameStatementDb);
+        javaCode.put("entityNameStatementOptional", entityNameStatementOptional);
+        javaCode.put("saveEntityName", saveEntityName);
+        javaCode.put("deleteEntityName", deleteEntityName);
+        javaCode.put("findEntityName", findEntityName);
+        javaCode.put("findEntityNamePage", findEntityNamePage);
         javaCode.put("entityPackageName", entityPackageName);
         javaCode.put("repositoryName", repositoryName);
         javaCode.put("repositoryPackageName", repositoryPackageName);
@@ -251,9 +282,92 @@ public class Controller extends AbstractController {
         javaCode.put("lombokAnnotation", lombokAnnotation.toString());
         javaCode.put("createdTime", createdTime);
 
+        for (ColumnTrans columnTran : columnTrans) {
+            entitySaveLogic.append(CreateJavaCode.createSaveLogic(entityNameStatement, entityNameStatementDb, columnTran)).append(CreateJavaCode.createChangeLine());
+        }
+        javaCode.put("entitySaveLogic", entitySaveLogic.toString());
 
         String targetFile = FileUtils.createFiles(serviceImplPackageName.replace(".", "/") + File.separator + serviceImplName + ".java");
-        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), "UTF-8"));
+        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8));
+        templateEntity.process(javaCode, out);
+        out.flush();
+        out.close();
+    }
+
+    private void createDto(Template templateEntity, TableTrans tableTran, String createdTime) throws IOException, TemplateException {
+        String packagePath = tableTran.getPackagePath();
+        boolean lombokState = tableTran.isLombokState();
+        List<ColumnTrans> columnTrans = tableTran.getColumnTrans();
+        String entityName = tableTran.getTableNameTrans();
+        String entityNameStatement = CamelCaseUtils.underlineToHump(entityName);
+        String entityDtoName = entityName + "Dto";
+        String entityDtoNameStatement = CamelCaseUtils.underlineToHump(entityDtoName);
+        String entityNameListStatement = entityNameStatement + "List";
+        StringBuilder fieldCode = new StringBuilder();
+        StringBuilder fieldGetSetCode = new StringBuilder();
+        StringBuilder lombokAnnotation = new StringBuilder();
+        StringBuilder dtoChangeEntity = new StringBuilder();
+        StringBuilder entityChangeDto = new StringBuilder();
+        StringBuilder entityChangeListDto = new StringBuilder();
+
+        if (!lombokState) {
+            for (ColumnTrans columnTran : columnTrans) {
+                String columnName = columnTran.getColumnName();
+                String columnType = columnTran.getColumnType();
+                String columnRemarks = columnTran.getColumnRemarks();
+                fieldCode.append(CreateJavaCode.createRemarks(columnRemarks)).append(CreateJavaCode.createChangeLine());
+                fieldCode.append(CreateJavaCode.createField(columnType, columnName)).append(CreateJavaCode.createChangeLine());
+
+                fieldGetSetCode.append(CreateJavaCode.createGetFun(columnType, columnName));
+                fieldGetSetCode.append(CreateJavaCode.createChangeLine()).append(CreateJavaCode.createChangeLine());
+                fieldGetSetCode.append(CreateJavaCode.createSetFun(columnType, columnName));
+                fieldGetSetCode.append(CreateJavaCode.createChangeLine()).append(CreateJavaCode.createChangeLine());
+            }
+        } else {
+            dtoChangeEntity.append(CreateJavaCode.createDtoChangeEntity(entityDtoName, entityDtoNameStatement, entityName));
+            entityChangeDto.append(CreateJavaCode.createEntityChangeDto(entityDtoName, entityName, entityNameStatement));
+            dtoChangeEntity.append(CreateJavaCode.createBuilder(entityName));
+            entityChangeDto.append(CreateJavaCode.createBuilder(entityDtoName));
+            entityChangeListDto.append(CreateJavaCode.createEntityChangeListDto(entityDtoName, entityName, entityNameListStatement));
+            for (ColumnTrans columnTran : columnTrans) {
+                String columnName = columnTran.getColumnName();
+                String columnType = columnTran.getColumnType();
+                String columnRemarks = columnTran.getColumnRemarks();
+                if (!Objects.equal("userId", columnName) && !Objects.equal("deleteState", columnName)) {
+                    fieldCode.append(CreateJavaCode.createRemarks(columnRemarks)).append(CreateJavaCode.createChangeLine());
+                    fieldCode.append(CreateJavaCode.createField(columnType, columnName)).append(CreateJavaCode.createChangeLine());
+                    dtoChangeEntity.append(CreateJavaCode.createTab(3)).append(".").append(columnName).append("(").append(entityDtoNameStatement).append(CreateJavaCode.createGet(columnName)).append(")").append("\n");
+                    entityChangeDto.append(CreateJavaCode.createTab(3)).append(".").append(columnName).append("(").append(entityDtoNameStatement).append(CreateJavaCode.createGet(columnName)).append(")").append("\n");
+                }
+            }
+            dtoChangeEntity.append(CreateJavaCode.createBuild());
+            entityChangeDto.append(CreateJavaCode.createBuild());
+            dtoChangeEntity.append(CreateJavaCode.createTab(1)).append(CreateJavaCode.createEndBrackets());
+            entityChangeDto.append(CreateJavaCode.createTab(1)).append(CreateJavaCode.createEndBrackets());
+
+
+            lombokAnnotation.append("@Builder");
+            lombokAnnotation.append(CreateJavaCode.createChangeLine());
+            lombokAnnotation.append("@Getter");
+            lombokAnnotation.append(CreateJavaCode.createChangeLine());
+            lombokAnnotation.append("@Setter");
+            lombokAnnotation.append(CreateJavaCode.createChangeLine());
+            lombokAnnotation.append("@JsonIgnoreProperties(ignoreUnknown = true)");
+        }
+        JSONObject javaCode = new JSONObject();
+        String entityPackageName = packagePath + ".dto";
+        javaCode.put("entityPackageName", entityPackageName);
+        javaCode.put("entityName", entityName);
+        javaCode.put("fieldCode", fieldCode.toString());
+        javaCode.put("lombokAnnotation", lombokAnnotation.toString());
+        javaCode.put("dtoChangeEntity", dtoChangeEntity.toString());
+        javaCode.put("entityChangeDto", entityChangeDto.toString());
+        javaCode.put("entityChangeListDto", entityChangeListDto.toString());
+        javaCode.put("createdTime", createdTime);
+
+
+        String targetFile = FileUtils.createFiles(entityPackageName.replace(".", "/") + File.separator + entityDtoName + ".java");
+        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8));
         templateEntity.process(javaCode, out);
         out.flush();
         out.close();

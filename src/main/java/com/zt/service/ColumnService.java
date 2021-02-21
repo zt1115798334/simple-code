@@ -74,7 +74,6 @@ public class ColumnService {
                         colRet.getString("SOURCE_DATA_TYPE"),
                         colRet.getString("IS_AUTOINCREMENT"),
                         colRet.getString("IS_GENERATEDCOLUMN"));
-
                 columns.add(c);
             }
 

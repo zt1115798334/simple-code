@@ -12,6 +12,13 @@ import java.util.List;
  * date: ${createdTime}
  * description:
  */
-public interface ${serviceName} extends BaseService<${entityName}, ${entityId}> {
+public interface ${serviceName} extends BaseService<${entityName}, ${entityId}, ${entityId}> {
 
+    ${entityName} ${saveEntityName}(${entityName} ${entityNameStatement});
+
+    void ${deleteEntityName}(Long id);
+
+    ${entityName} ${findEntityName}(Long id);
+
+    Page<${entityName}> ${findEntityNamePage}(${entityName} ${entityNameStatement});
 }
