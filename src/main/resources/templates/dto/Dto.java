@@ -1,8 +1,6 @@
-package ${entityPackageName};
+package ${dtoPackageName};
 
-import javax.persistence.*;
-
-
+${importJava}
 /**
  * Created with IntelliJ IDEA.
  *
@@ -11,12 +9,8 @@ import javax.persistence.*;
  * description:
  */
 ${lombokAnnotation}
-public class ${entityName} implements Serializable {
-    ${fieldCode}
+public class ${dtoName} implements Serializable {
+${fieldCode}
 
-${dtoChangeEntity}
-
-${entityChangeDto}
-
-${entityChangeListDto}
+${dtoFun}
 }

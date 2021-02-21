@@ -30,4 +30,7 @@ public class CommonModel {
     @Value("${templates.file-path.dto}")
     private String dtoTemplate;
 
+    @Value("${templates.file-path.controller}")
+    private String controllerTemplate;
+
 }

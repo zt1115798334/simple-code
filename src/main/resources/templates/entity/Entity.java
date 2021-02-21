@@ -1,7 +1,5 @@
 package ${entityPackageName};
 
-import javax.persistence.*;
-
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,10 +9,6 @@ import javax.persistence.*;
  * description:
  */
 ${lombokAnnotation}
-@Entity
-@Table(name = "${tableName}")
-public class ${entityName} {
+public class ${entityName} extends PageEntity {
     ${fieldCode}
-
-    ${fieldGetSetCode}
 }

@@ -1,7 +1,6 @@
 package ${repositoryPackageName};
 
-import ${entityPackageName}.${entityName};
-import org.springframework.data.repository.CrudRepository;
+${importJava}
 
 /**
  * Created with IntelliJ IDEA.

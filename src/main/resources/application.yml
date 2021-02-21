@@ -44,3 +44,4 @@ templates:
     service: service/Service.java
     serviceImpl: service/impl/ServiceImpl.java
     dto: dto/Dto.java
+    controller: controller/Controller.java
