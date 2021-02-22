@@ -80,10 +80,11 @@ public class ColumnService {
             Table table = new Table();
             table.setColumns(columns);
             table.setTableName(tableName);
-            table.setTableNameTrans(tableNameTrans);
+            table.setTableNameTrans(tableNameTrans.substring(1));
             tables.add(table);
             connection.close();
         }
         return tables;
     }
+
 }
