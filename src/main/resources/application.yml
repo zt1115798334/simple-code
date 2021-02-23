@@ -2,21 +2,9 @@ server:
   port: 8083
 spring:
   datasource:
-#    url: jdbc:mysql://rds8l3889yql6705lkkepublic.mysql.rds.aliyuncs.com:3306/pomp?autoReconnect=true&useUnicode=true&characterEncoding=utf-8
-#    url: jdbc:mysql://rm-bp1d3ra3968332d9ixo.mysql.rds.aliyuncs.com:3306/pomptest?characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
-#    url: jdbc:mysql://rds8l3889yql6705lkkepublic.mysql.rds.aliyuncs.com:3306/spiderserver?characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
-#    url: jdbc:mysql://152.136.145.193:3306/free_school?characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
-#    url: jdbc:mysql://116.62.153.127:3306/thesaurus_test?characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
     url: jdbc:mysql://127.0.0.1:3306/pomp?characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-#    username: spiderserver
-#    username: pmptest
-#    password: zkdj1234.
     password: root
-#    password: School@2018
-#    password: zkdj_yqgj2)!&
-#    password: salkdgj3535aslfdkj67
-#    password: Zkdj@123?
     hikari:
       connection-timeout: 30000
       idle-timeout: 60000
@@ -32,9 +20,6 @@ spring:
       mode: LEGACYHTML5
       prefix: classpath:/templates/
       suffix: .html
-      template-resolver-order:
-        servlet:
-        content-type: text/html
   mvc:
     static-path-pattern: /static/**
 templates:
@@ -46,3 +31,10 @@ templates:
     dto-template: dto/Dto.java
     search-dto-template: dto/SearchDto.java
     controller-template: controller/Controller.java
+    base-base-result-message-template: base/controller/BaseResultMessage.java
+    base-result-message-template: base/controller/ResultMessage.java
+    base-page-entity-template: base/entity/PageEntity.java
+    base-base-service-template: base/service/BaseService.java
+    base-constant-service-template: base/service/ConstantService.java
+    base-interface-base-service-template: base/service/InterfaceBaseService.java
+    base-page-utils-template: base/service/PageUtils.java

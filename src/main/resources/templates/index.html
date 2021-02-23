@@ -27,7 +27,7 @@
 </div>
 <input type="button" id="next-3" value="下一步">
 <div id="step-3" hidden>
-    路径地址为：<input type="text" value="" id="package-path"/>
+    项目名称为：<input type="text" value="" id="project-name"/>
     是否使用 lombokState:<input type="checkbox" value="is" id="lombokState"/>
 </div>
 <input type="button" id="next-4" value="创建文件">
@@ -66,7 +66,7 @@
 
         //第四步
         $("#next-4").on("click", function () {
-            var packagePath = $("#package-path").val();
+            var projectName = $("#project-name").val();
             var lombokState = $("#lombokState").is(":checked");
             var tableTransArr = [];
             $("#table-column tbody").each(function () {
@@ -109,7 +109,7 @@
                 tableTrans.tableName = tableName;
                 tableTrans.tableNameTrans = tableNameTrans;
                 tableTrans.columnTrans = columnTransArr;
-                tableTrans.packagePath = packagePath;
+                tableTrans.projectName = projectName;
                 tableTrans.lombokState = lombokState;
                 tableTransArr.push(tableTrans);
             });

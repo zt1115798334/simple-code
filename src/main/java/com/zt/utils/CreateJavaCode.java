@@ -39,6 +39,10 @@ public class CreateJavaCode {
 
     }
 
+    public static String createPackagePath(String projectName) {
+        return SysCon.PACKAG_PREFIXE + "." + projectName;
+    }
+
     public static String createFieldId() {
         return createTab(1) + "@Id\n" +
                 createTab(1) + "@GeneratedValue(strategy = GenerationType.IDENTITY)\n";

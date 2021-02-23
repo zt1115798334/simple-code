@@ -1,4 +1,4 @@
-package com.zt.entity;
+package com.zt.properties;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -32,4 +32,17 @@ public class TemplatesProperties {
 
     private String controllerTemplate;
 
+    private String baseBaseResultMessageTemplate;
+
+    private String baseResultMessageTemplate;
+
+    private String basePageEntityTemplate;
+
+    private String baseBaseServiceTemplate;
+
+    private String baseConstantServiceTemplate;
+
+    private String baseInterfaceBaseServiceTemplate;
+
+    private String basePageUtilsTemplate;
 }

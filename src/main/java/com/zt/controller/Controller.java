@@ -6,7 +6,7 @@ import com.zt.controller.base.AbstractController;
 import com.zt.entity.ColumnTrans;
 import com.zt.entity.Table;
 import com.zt.entity.TableTrans;
-import com.zt.entity.TemplatesProperties;
+import com.zt.properties.TemplatesProperties;
 import com.zt.service.ColumnService;
 import com.zt.service.TableService;
 import com.zt.utils.CamelCaseUtils;
@@ -93,6 +93,7 @@ public class Controller extends AbstractController {
         LocalDateTime currentDateTime = DateUtils.currentDateTime();
         String createdTime = DateUtils.formatDateTime(currentDateTime);
         for (TableTrans tableTran : tableTrans) {
+            createBase(tableTran, createdTime);
             createEntity(templateEntity, tableTran, createdTime);
             createRepository(templateRepository, tableTran, createdTime);
             createService(templateService, tableTran, createdTime);
@@ -108,8 +109,46 @@ public class Controller extends AbstractController {
         return success();
     }
 
+    private void createBase(TableTrans tableTran, String createdTime) throws IOException, TemplateException {
+        Template baseBaseResultMessageTemplate = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getBaseBaseResultMessageTemplate());
+        Template baseResultMessageTemplate = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getBaseResultMessageTemplate());
+        Template basePageEntityTemplate = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getBasePageEntityTemplate());
+        Template baseBaseServiceTemplate = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getBaseBaseServiceTemplate());
+        Template baseConstantServiceTemplate = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getBaseConstantServiceTemplate());
+        Template baseInterfaceBaseServiceTemplate = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getBaseInterfaceBaseServiceTemplate());
+        Template basePageUtilsTemplate = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getBasePageUtilsTemplate());
+
+        String packagePath = CreateJavaCode.createPackagePath(tableTran.getProjectName());
+
+        //类路径
+        String baseControllerPackageName = packagePath + ".base.controller";
+        String baseEntityPackageName = packagePath + ".base.entity";
+        String baseServicePackageName = packagePath + ".base.service";
+        JSONObject javaCode = new JSONObject();
+        javaCode.put("createdTime", createdTime);
+        javaCode.put("baseControllerPackageName", baseControllerPackageName);
+        javaCode.put("baseEntityPackageName", baseEntityPackageName);
+        javaCode.put("baseServicePackageName", baseServicePackageName);
+
+        String targetFileBaseBaseResultMessageTemplate = FileUtils.createFiles(baseControllerPackageName.replace(".", "/") + File.separator + "BaseResultMessage.java");
+        String targetFileBaseResultMessageTemplate = FileUtils.createFiles(baseControllerPackageName.replace(".", "/") + File.separator + "ResultMessage.java");
+        String targetFileBasePageEntityTemplate = FileUtils.createFiles(baseEntityPackageName.replace(".", "/") + File.separator + "PageEntity.java");
+        String targetFileBaseBaseServiceTemplate = FileUtils.createFiles(baseServicePackageName.replace(".", "/") + File.separator + "BaseService.java");
+        String targetFileBaseConstantServiceTemplate = FileUtils.createFiles(baseServicePackageName.replace(".", "/") + File.separator + "ConstantService.java");
+        String targetFileBaseInterfaceBaseServiceTemplate = FileUtils.createFiles(baseServicePackageName.replace(".", "/") + File.separator + "InterfaceBaseService.java");
+        String targetFileBasePageUtilsTemplate = FileUtils.createFiles(baseServicePackageName.replace(".", "/") + File.separator + "PageUtils.java");
+
+        writerOut(baseBaseResultMessageTemplate, targetFileBaseBaseResultMessageTemplate, javaCode);
+        writerOut(baseResultMessageTemplate, targetFileBaseResultMessageTemplate, javaCode);
+        writerOut(basePageEntityTemplate, targetFileBasePageEntityTemplate, javaCode);
+        writerOut(baseBaseServiceTemplate, targetFileBaseBaseServiceTemplate, javaCode);
+        writerOut(baseConstantServiceTemplate, targetFileBaseConstantServiceTemplate, javaCode);
+        writerOut(baseInterfaceBaseServiceTemplate, targetFileBaseInterfaceBaseServiceTemplate, javaCode);
+        writerOut(basePageUtilsTemplate, targetFileBasePageUtilsTemplate, javaCode);
+    }
+
     private void createEntity(Template templateEntity, TableTrans tableTran, String createdTime) throws IOException, TemplateException {
-        String packagePath = tableTran.getPackagePath();
+        String packagePath = CreateJavaCode.createPackagePath(tableTran.getProjectName());
         String tableName = tableTran.getTableName();
         String entityName = tableTran.getTableNameTrans();
         //类路径
@@ -120,7 +159,6 @@ public class Controller extends AbstractController {
 
         //注解
         String lombokAnnotation = CreateJavaCode.createEntityAnnotation(tableName);
-
 
         //构建变量
         List<ColumnTrans> columnTrans = tableTran.getColumnTrans();
@@ -147,14 +185,11 @@ public class Controller extends AbstractController {
         javaCode.put("createdTime", createdTime);
 
         String targetFile = FileUtils.createFiles(entityPackageName.replace(".", "/") + File.separator + entityName + ".java");
-        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8));
-        templateEntity.process(javaCode, out);
-        out.flush();
-        out.close();
+        writerOut(templateEntity, targetFile, javaCode);
     }
 
     private void createRepository(Template templateEntity, TableTrans tableTran, String createdTime) throws IOException, TemplateException {
-        String packagePath = tableTran.getPackagePath();
+        String packagePath = CreateJavaCode.createPackagePath(tableTran.getProjectName());
         String entityName = tableTran.getTableNameTrans();
         //类路径
         String repositoryPackageName = packagePath + ".repo";
@@ -175,14 +210,11 @@ public class Controller extends AbstractController {
 
 
         String targetFile = FileUtils.createFiles(repositoryPackageName.replace(".", "/") + File.separator + repositoryName + ".java");
-        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8));
-        templateEntity.process(javaCode, out);
-        out.flush();
-        out.close();
+        writerOut(templateEntity, targetFile, javaCode);
     }
 
     private void createService(Template templateEntity, TableTrans tableTran, String createdTime) throws IOException, TemplateException {
-        String packagePath = tableTran.getPackagePath();
+        String packagePath = CreateJavaCode.createPackagePath(tableTran.getProjectName());
         String entityName = tableTran.getTableNameTrans();
         String entityNameStatement = CamelCaseUtils.underlineToHump(entityName);
         //类路径
@@ -223,14 +255,11 @@ public class Controller extends AbstractController {
 
 
         String targetFile = FileUtils.createFiles(servicePackageName.replace(".", "/") + File.separator + serviceName + ".java");
-        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8));
-        templateEntity.process(javaCode, out);
-        out.flush();
-        out.close();
+        writerOut(templateEntity, targetFile, javaCode);
     }
 
     private void createServiceImpl(Template templateEntity, TableTrans tableTran, String createdTime) throws IOException, TemplateException {
-        String packagePath = tableTran.getPackagePath();
+        String packagePath = CreateJavaCode.createPackagePath(tableTran.getProjectName());
         String entityName = tableTran.getTableNameTrans();
         String entityNameStatement = CamelCaseUtils.underlineToHump(entityName);
         //类路径
@@ -290,14 +319,11 @@ public class Controller extends AbstractController {
         javaCode.put("createdTime", createdTime);
 
         String targetFile = FileUtils.createFiles(serviceImplPackageName.replace(".", "/") + File.separator + serviceImplName + ".java");
-        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8));
-        templateEntity.process(javaCode, out);
-        out.flush();
-        out.close();
+        writerOut(templateEntity, targetFile, javaCode);
     }
 
     private void createDto(Template templateEntity, TableTrans tableTran, String createdTime) throws IOException, TemplateException {
-        String packagePath = tableTran.getPackagePath();
+        String packagePath = CreateJavaCode.createPackagePath(tableTran.getProjectName());
         String entityName = tableTran.getTableNameTrans();
         String entityNameStatement = CamelCaseUtils.underlineToHump(entityName);
         //类路径
@@ -343,14 +369,11 @@ public class Controller extends AbstractController {
         javaCode.put("dtoFun", dtoFun);
         javaCode.put("createdTime", createdTime);
         String targetFile = FileUtils.createFiles(dtoPackageName.replace(".", "/") + File.separator + dtoName + ".java");
-        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8));
-        templateEntity.process(javaCode, out);
-        out.flush();
-        out.close();
+        writerOut(templateEntity, targetFile, javaCode);
     }
 
     private void createSearchDto(Template templateEntity, TableTrans tableTran, String createdTime) throws IOException, TemplateException {
-        String packagePath = tableTran.getPackagePath();
+        String packagePath = CreateJavaCode.createPackagePath(tableTran.getProjectName());
         String entityName = tableTran.getTableNameTrans();
         //类路径
         String searchDtoPackageName = packagePath + ".dto";
@@ -387,14 +410,11 @@ public class Controller extends AbstractController {
         javaCode.put("fieldCode", fieldCode.toString());
         javaCode.put("createdTime", createdTime);
         String targetFile = FileUtils.createFiles(searchDtoPackageName.replace(".", "/") + File.separator + searchDtoName + ".java");
-        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8));
-        templateEntity.process(javaCode, out);
-        out.flush();
-        out.close();
+        writerOut(templateEntity, targetFile, javaCode);
     }
 
     private void createController(Template templateEntity, TableTrans tableTran, String createdTime) throws IOException, TemplateException {
-        String packagePath = tableTran.getPackagePath();
+        String packagePath = CreateJavaCode.createPackagePath(tableTran.getProjectName());
         String entityName = tableTran.getTableNameTrans();
         String entityNameStatement = CamelCaseUtils.underlineToHump(entityName);
         //类路径
@@ -448,8 +468,12 @@ public class Controller extends AbstractController {
         javaCode.put("createdTime", createdTime);
 
         String targetFile = FileUtils.createFiles(controllerPackageName.replace(".", "/") + File.separator + controllerName + ".java");
+        writerOut(templateEntity, targetFile, javaCode);
+    }
+
+    public void writerOut(Template targetTemplate, String targetFile, JSONObject javaCode) throws IOException, TemplateException {
         Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8));
-        templateEntity.process(javaCode, out);
+        targetTemplate.process(javaCode, out);
         out.flush();
         out.close();
     }
