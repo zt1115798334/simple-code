@@ -1,7 +1,6 @@
-package ${baseServicePackageName};
+package ${packagePath}.base.service;
 
-import com.example.awards.custom.EnabledState;
-import com.example.awards.enums.DeleteState;
+import ${packagePath}.enums.DeleteState;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,13 +20,4 @@ public interface ConstantService {
      * 删除
      */
     Integer DELETED = DeleteState.DELETE.getCode();
-
-    /**
-     * 开启
-     */
-    Integer ON = EnabledState.ON.getCode();
-    /**
-     * 停用
-     */
-    Integer OFF = EnabledState.OFF.getCode();
 }

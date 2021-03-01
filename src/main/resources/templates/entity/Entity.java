@@ -9,6 +9,6 @@ ${importJava}
  * description:
  */
 ${lombokAnnotation}
-public class ${entityName} extends PageEntity {
+public class ${entityName} {
     ${fieldCode}
 }

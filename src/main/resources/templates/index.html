@@ -28,7 +28,7 @@
 <input type="button" id="next-3" value="下一步">
 <div id="step-3" hidden>
     项目名称为：<input type="text" value="" id="project-name"/>
-    是否使用 lombokState:<input type="checkbox" value="is" id="lombokState"/>
+    是否使用 创建基础文件:<input type="checkbox" value="is" id="createBasics"/>
 </div>
 <input type="button" id="next-4" value="创建文件">
 </body>
@@ -66,8 +66,7 @@
 
         //第四步
         $("#next-4").on("click", function () {
-            var projectName = $("#project-name").val();
-            var lombokState = $("#lombokState").is(":checked");
+
             var tableTransArr = [];
             $("#table-column tbody").each(function () {
                 var _this = $(this);
@@ -109,8 +108,6 @@
                 tableTrans.tableName = tableName;
                 tableTrans.tableNameTrans = tableNameTrans;
                 tableTrans.columnTrans = columnTransArr;
-                tableTrans.projectName = projectName;
-                tableTrans.lombokState = lombokState;
                 tableTransArr.push(tableTrans);
             });
             getTableTrans(tableTransArr);
@@ -119,6 +116,9 @@
     });
 
     function showTable() {
+        var projectName = $("#project-name").val();
+        var createBasics = $("#createBasics").is(":checked");
+
         var url = "/showTable";
         var params = {};
         execAjax(url, params, callback);
@@ -178,7 +178,14 @@
         }
     }
 
-    function getTableTrans(params) {
+    function getTableTrans(tableTransArr) {
+        var projectName = $("#project-name").val();
+        var createBasics = $("#createBasics").is(":checked");
+        var params = {
+            "tableTrans": tableTransArr,
+            "projectName": projectName,
+            "createBasics": createBasics,
+        }
         var url = "/getTableTrans";
         execAjaxJSON(url, params, callback);
 

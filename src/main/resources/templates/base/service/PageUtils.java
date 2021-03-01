@@ -1,7 +1,7 @@
-package ${baseServicePackageName};
+package ${packagePath}.base.service;
 
-import com.example.awards.base.entity.PageEntity;
-import com.example.awards.dto.PageDto;
+import ${packagePath}.base.entity.PageEntity;
+import ${packagePath}.base.dto.PageDto;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;

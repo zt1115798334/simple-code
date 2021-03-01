@@ -16,7 +16,6 @@ public class TableTrans {
 
     private String tableName;
     private String tableNameTrans;
-    private String projectName;
     private List<ColumnTrans> columnTrans;
 
 }

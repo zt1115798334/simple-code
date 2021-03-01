@@ -1,4 +1,4 @@
-package ${baseControllerPackageName};
+package ${packagePath}.base.controller;
 
 
 /**

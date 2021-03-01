@@ -1,6 +1,6 @@
-package ${baseServicePackageName};
+package ${packagePath}.base.service;
 
-import com.example.awards.exception.OperationException;
+import ${packagePath}.exception.OperationException;
 import com.google.common.base.Objects;
 import org.springframework.data.domain.Page;
 

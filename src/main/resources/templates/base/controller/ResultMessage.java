@@ -1,11 +1,11 @@
-package ${baseControllerPackageName};
+package ${packagePath}.base.controller;
 
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.example.awards.enums.SystemStatusCode;
-import com.example.awards.utils.DateUtils;
+import ${packagePath}.enums.SystemStatusCode;
+import ${packagePath}.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
@@ -19,7 +19,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include;
  * Created with IntelliJ IDEA.
  *
  * @author zhang tong
- * date: ${createdTime}
+ * date: 2018/12/18 18:27
  * description: 前后端统一消息定义协议 Message 之后前后端数据交互都按照规定的类型进行交互
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

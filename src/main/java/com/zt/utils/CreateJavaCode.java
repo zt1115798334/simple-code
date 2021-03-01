@@ -145,7 +145,7 @@ public class CreateJavaCode {
         return createTab(1) + "@Override\n" +
                 createTab(1) + "@Transactional(readOnly = true, propagation = Propagation.NOT_SUPPORTED)\n" +
                 createTab(1) + "public Optional<" + entityName + "> findByIdNotDelete(Long id) {\n" +
-                createTab(2) + "return " + repositoryNameStatement + ".findByIdAndDeleteState(id, UN_DELETED));\n" +
+                createTab(2) + "return " + repositoryNameStatement + ".findByIdAndDeleteState(id, UN_DELETED);\n" +
                 createTab(1) + "}\n";
     }
 
@@ -163,7 +163,7 @@ public class CreateJavaCode {
 
     public static String createAllSpecification(String entityName, String entityNameStatement) {
         return createTab(1) + "private Specification<" + entityName + "> getAllSpecification(" + entityName + " " + entityNameStatement + ") {\n" +
-                createTab(2) + "return Specifications.<${" + entityName + "}>and()\n" +
+                createTab(2) + "return Specifications.<" + entityName + ">and()\n" +
                 createTab(2) + ".equal(\"deleteState\", UN_DELETED)\n" +
                 createTab(2) + ".equal(\"userId\", " + entityNameStatement + ".getUserId())\n" +
                 createTab(2) + ".build();\n" +
@@ -296,7 +296,7 @@ public class CreateJavaCode {
     public static String createEntityAnnotation(String tableName) {
         return "@NoArgsConstructor\n" +
                 "@AllArgsConstructor\n" +
-                "@EqualsAndHashCode(callSuper = true)\n" +
+                "@Builder\n" +
                 "@Data\n" +
                 "@Entity\n" +
                 "@Table(name = \"" + tableName + "\")";
@@ -310,6 +310,16 @@ public class CreateJavaCode {
     public static String createDtoAnnotation() {
         return "@NoArgsConstructor\n" +
                 "@AllArgsConstructor\n" +
+                "@Builder\n" +
+                "@Data\n" +
+                "@JsonIgnoreProperties(ignoreUnknown = true)";
+    }
+
+    public static String createSearchDtoAnnotation() {
+        return "@NoArgsConstructor\n" +
+//                "@AllArgsConstructor\n" +
+                "@Builder\n" +
+                "@EqualsAndHashCode(callSuper = true)\n" +
                 "@Data\n" +
                 "@JsonIgnoreProperties(ignoreUnknown = true)";
     }
@@ -322,8 +332,8 @@ public class CreateJavaCode {
     }
 
     public static String createImportJavaEntity(String entityPackageName, String entityName) {
-        return "import " + entityPackageName + ".base.entity.PageEntity;\n" +
-                "import lombok.AllArgsConstructor;\n" +
+        return "import lombok.AllArgsConstructor;\n" +
+                "import lombok.Builder;\n" +
                 "import lombok.Data;\n" +
                 "import lombok.EqualsAndHashCode;\n" +
                 "import lombok.NoArgsConstructor;\n" +
@@ -364,29 +374,22 @@ public class CreateJavaCode {
                 "import " + packagePath + ".service.*;\n" +
                 "import " + packagePath + ".specification.Specifications;\n" +
                 "import " + packagePath + ".utils.DateUtils;\n" +
-                "import com.google.common.base.Objects;\n" +
                 "import lombok.AllArgsConstructor;\n" +
-                "import org.apache.commons.lang3.ArrayUtils;\n" +
-                "import org.apache.commons.lang3.StringUtils;\n" +
                 "import org.springframework.data.domain.Page;\n" +
-                "import org.springframework.data.domain.PageImpl;\n" +
                 "import org.springframework.data.domain.Pageable;\n" +
                 "import org.springframework.data.jpa.domain.Specification;\n" +
                 "import org.springframework.stereotype.Service;\n" +
+                "import org.springframework.transaction.annotation.Propagation;\n" +
+                "import org.springframework.transaction.annotation.Transactional;\n" +
                 "\n" +
-                "import java.time.LocalDateTime;\n" +
-                "import java.util.Collections;\n" +
-                "import java.util.List;\n" +
-                "import java.util.Map;\n" +
-                "import java.util.Optional;\n" +
-                "import java.util.stream.Collectors;";
+                "import java.util.Optional;";
     }
 
     public static String createImportJavaDto(String packagePath,
                                              String entityPackageName, String entityName) {
         return "import com.alibaba.fastjson.JSONObject;\n" +
                 "import " + entityPackageName + "." + entityName + ";\n" +
-                "import " + packagePath + ".DateUtils;\n" +
+                "import " + packagePath + ".utils.DateUtils;\n" +
                 "import com.fasterxml.jackson.annotation.JsonFormat;\n" +
                 "import com.fasterxml.jackson.annotation.JsonIgnoreProperties;\n" +
                 "import com.google.common.collect.Lists;\n" +
@@ -402,8 +405,10 @@ public class CreateJavaCode {
                 "import java.util.stream.Collectors;";
     }
 
-    public static String createImportJavaSearchDto() {
-        return "import com.fasterxml.jackson.annotation.JsonIgnoreProperties;\n" +
+
+    public static String createImportJavaSearchDto(String packagePath) {
+        return "import "+packagePath+".base.dto.PageDto;\n" +
+                "import com.fasterxml.jackson.annotation.JsonIgnoreProperties;\n" +
                 "import lombok.*;\n" +
                 "\n" +
                 "import java.util.List;";
@@ -420,25 +425,10 @@ public class CreateJavaCode {
                 "import " + entityPackageName + ".*;\n" +
                 "import " + searchDtoPackageName + ".*;\n" +
                 "import " + servicePackageName + ".*;\n" +
-                "import com.google.common.base.Objects;\n" +
-                "import io.swagger.annotations.Api;\n" +
-                "import io.swagger.annotations.ApiImplicitParam;\n" +
-                "import io.swagger.annotations.ApiImplicitParams;\n" +
-                "import io.swagger.annotations.ApiOperation;\n" +
                 "import lombok.AllArgsConstructor;\n" +
                 "import org.springframework.data.domain.Page;\n" +
                 "import org.springframework.validation.annotation.Validated;\n" +
-                "import org.springframework.web.bind.annotation.*;\n" +
-                "\n" +
-                "import javax.servlet.http.HttpServletRequest;\n" +
-                "import java.lang.reflect.Field;\n" +
-                "import java.util.Arrays;\n" +
-                "import java.util.Collection;\n" +
-                "import java.util.Collections;\n" +
-                "import java.util.List;\n" +
-                "import java.util.function.Function;\n" +
-                "import java.util.stream.Collectors;\n" +
-                "import java.util.stream.Stream;";
+                "import org.springframework.web.bind.annotation.*;\n" ;
     }
 
     public static void main(String[] args) {
