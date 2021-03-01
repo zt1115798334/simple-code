@@ -35,4 +35,6 @@ public class PageDto implements Serializable {
      */
     protected int pageSize = 10;
 
+    protected Long userId;
+
 }

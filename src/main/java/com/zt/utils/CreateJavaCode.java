@@ -156,16 +156,16 @@ public class CreateJavaCode {
                 createTab(1) + "@Transactional(readOnly = true, propagation = Propagation.NOT_SUPPORTED)\n" +
                 createTab(1) + "public Page<" + entityName + "> findPageByEntity(" + searchDtoName + " " + searchDtoNameStatement + ") {\n" +
                 createTab(2) + "Specification<" + entityName + "> specification = this.getAllSpecification(" + searchDtoNameStatement + ");\n" +
-                createTab(2) + "Pageable pageable = PageUtils.buildPageRequest(" + entityName + ");\n" +
+                createTab(2) + "Pageable pageable = PageUtils.buildPageRequest(" + searchDtoNameStatement + ");\n" +
                 createTab(2) + "return " + repositoryNameStatement + ".findAll(specification, pageable);\n" +
                 createTab(1) + "}\n";
     }
 
-    public static String createAllSpecification(String entityName, String entityNameStatement) {
-        return createTab(1) + "private Specification<" + entityName + "> getAllSpecification(" + entityName + " " + entityNameStatement + ") {\n" +
+    public static String createAllSpecification(String entityName, String entityNameStatement,String searchDtoName, String searchDtoNameStatement) {
+        return createTab(1) + "private Specification<" + entityName + "> getAllSpecification(" + searchDtoName + " " + searchDtoNameStatement + ") {\n" +
                 createTab(2) + "return Specifications.<" + entityName + ">and()\n" +
                 createTab(2) + ".equal(\"deleteState\", UN_DELETED)\n" +
-                createTab(2) + ".equal(\"userId\", " + entityNameStatement + ".getUserId())\n" +
+                createTab(2) + ".equal(\"userId\", " + searchDtoNameStatement + ".getUserId())\n" +
                 createTab(2) + ".build();\n" +
                 createTab(1) + "}\n";
     }
@@ -230,7 +230,7 @@ public class CreateJavaCode {
 
     public static String createEntityChangeListDto(String entityDtoName, String entityName, String entityNameListStatement) {
         return createTab(1) + "public static List<" + entityDtoName + "> entityChangeListDto(List<" + entityName + "> " + entityNameListStatement + ") {\n" +
-                createTab(2) + "return " + entityNameListStatement + ".stream().map(e -> " + entityDtoName + ".entityChangeDto(e, subjectList)).collect(Collectors.toList());\n" +
+                createTab(2) + "return " + entityNameListStatement + ".stream().map(e -> " + entityDtoName + ".entityChangeDto(e)).collect(Collectors.toList());\n" +
                 createTab(1) + "}\n";
     }
 
@@ -275,7 +275,7 @@ public class CreateJavaCode {
         return createTab(1) + "@PostMapping(value = \"" + findEntityName + "\")\n" +
                 createTab(1) + "public ResultMessage " + findEntityName + "(@RequestParam Long id) {\n" +
                 createTab(2) + "" + entityName + " " + entityNameStatement + " = " + serviceNameStatement + "." + findEntityName + "(id);\n" +
-                createTab(2) + "return success(" + entityDtoName + ".entityChangeDto(" + entityDtoNameStatement + "));\n" +
+                createTab(2) + "return success(" + entityDtoName + ".entityChangeDto(" + entityNameStatement + "));\n" +
                 createTab(1) + "}\n";
     }
 

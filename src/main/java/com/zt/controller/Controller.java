@@ -248,6 +248,7 @@ public class Controller extends AbstractController {
         Template utilsUuidUtilTemplate = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getUtilsUuidUtilTemplate());
         Template utilsUserUtilsTemplate = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getUtilsUserUtilsTemplate());
         Template utilsDigestsTemplate = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getUtilsDigestsTemplate());
+        Template utilsEncodesTemplate = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getUtilsEncodesTemplate());
 
         //类路径
         JSONObject javaCode = new JSONObject();
@@ -260,6 +261,7 @@ public class Controller extends AbstractController {
         String targetFileUtilsUuidUtilTemplate = FileUtils.createFiles(packagePathZ + File.separator + templatesProperties.getUtilsUuidUtilTemplate());
         String targetFileUtilsUserUtilsTemplate = FileUtils.createFiles(packagePathZ + File.separator + templatesProperties.getUtilsUserUtilsTemplate());
         String targetFileUtilsDigestsTemplate = FileUtils.createFiles(packagePathZ + File.separator + templatesProperties.getUtilsDigestsTemplate());
+        String targetFileUtilsEncodesTemplate = FileUtils.createFiles(packagePathZ + File.separator + templatesProperties.getUtilsEncodesTemplate());
 
         writerOut(utilsDateUtilsTemplate, targetFileUtilsDateUtilsTemplate, javaCode);
         writerOut(utilsJwtUtilsTemplate, targetFileUtilsJwtUtilsTemplate, javaCode);
@@ -268,7 +270,7 @@ public class Controller extends AbstractController {
         writerOut(utilsUuidUtilTemplate, targetFileUtilsUuidUtilTemplate, javaCode);
         writerOut(utilsUserUtilsTemplate, targetFileUtilsUserUtilsTemplate, javaCode);
         writerOut(utilsDigestsTemplate, targetFileUtilsDigestsTemplate, javaCode);
-
+        writerOut(utilsEncodesTemplate, targetFileUtilsEncodesTemplate, javaCode);
     }
 
     private void createSecurity(String packagePathZ, JSONObject publicJavaPathCode) throws IOException, TemplateException {
@@ -377,6 +379,7 @@ public class Controller extends AbstractController {
 
         writerOut(cacheCacheKeysTemplate, targetFileCacheCacheKeysTemplate, javaCode);
     }
+
     private void createXss(String packagePathZ, JSONObject publicJavaPathCode) throws IOException, TemplateException {
 
         Template xssXssFilterTemplate = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.getXssXssFilterTemplate());
@@ -500,6 +503,7 @@ public class Controller extends AbstractController {
         javaCode.put("serviceName", serviceName);
         javaCode.put("entityId", "Long");
         javaCode.put("entityName", entityName);
+        javaCode.put("searchDtoName", searchDtoName);
         javaCode.put("serviceInterface", serviceInterface);
         javaCode.put("createdTime", createdTime);
 
@@ -511,7 +515,7 @@ public class Controller extends AbstractController {
     private void createServiceImpl(Template templateEntity, TableTrans tableTran, String createdTime, String projectName) throws IOException, TemplateException {
         String packagePath = CreateJavaCode.createPackagePath(projectName);
         String entityName = tableTran.getTableNameTrans();
-        String entityNameStatement = CamelCaseUtils.underlineToHump(entityName);
+        String entityNameStatement = CreateJavaCode.toLowerCaseFirstOne(entityName);
         //类路径
         String serviceImplPackageName = packagePath + ".service.impl";
         //定义引入jar包前缀
@@ -556,7 +560,7 @@ public class Controller extends AbstractController {
                 CreateJavaCode.createServiceImplInterfaceOfDelete(deleteEntityName) + "\n" +
                 CreateJavaCode.createServiceImplInterfaceOfFind(findEntityName, entityName) + "\n" +
                 CreateJavaCode.createServiceImplInterfaceOfFindPage(findEntityNamePage, entityName, entityNameStatement, searchDtoName, searchDtoNameStatement) + "\n" +
-                CreateJavaCode.createAllSpecification(entityName, searchDtoNameStatement) + "\n";
+                CreateJavaCode.createAllSpecification(entityName, entityNameStatement, searchDtoName, searchDtoNameStatement) + "\n";
 
         JSONObject javaCode = new JSONObject();
         javaCode.put("serviceImplPackageName", serviceImplPackageName);
@@ -601,7 +605,7 @@ public class Controller extends AbstractController {
                 fieldCode.append(CreateJavaCode.createRemarks(columnRemarks)).append(CreateJavaCode.createChangeLine());
                 fieldCode.append(CreateJavaCode.createField(columnType, columnName)).append(CreateJavaCode.createChangeLine());
                 dtoChangeEntity.append(CreateJavaCode.createTab(3)).append(".").append(columnName).append("(").append(dtoNameStatement).append(CreateJavaCode.createGet(columnName)).append(")").append("\n");
-                entityChangeDto.append(CreateJavaCode.createTab(3)).append(".").append(columnName).append("(").append(dtoNameStatement).append(CreateJavaCode.createGet(columnName)).append(")").append("\n");
+                entityChangeDto.append(CreateJavaCode.createTab(3)).append(".").append(columnName).append("(").append(entityNameStatement).append(CreateJavaCode.createGet(columnName)).append(")").append("\n");
             }
         }
         String entityNameListStatement = entityNameStatement + "List";
@@ -732,7 +736,7 @@ public class Controller extends AbstractController {
     public static void main(String[] args) {
         System.out.println();
         List<String> strings = new ArrayList<>();
-        strings.add("utilsDigestsTemplate");
+        strings.add("utilsEncodesTemplate");
         for (String s : strings) {
             System.out.println(" Template " + s + " = freeMarkerConfigurer.getConfiguration().getTemplate(templatesProperties.get" + CreateJavaCode.toUpperCaseFirstOne(s) + "());");
         }

@@ -86,6 +86,8 @@ public class TemplatesProperties {
 
     private String utilsDigestsTemplate;
 
+    private String utilsEncodesTemplate;
+
     private String securityShiroBaseConfigTemplate;
 
     private String securityStatelessWebSubjectFactoryTemplate;

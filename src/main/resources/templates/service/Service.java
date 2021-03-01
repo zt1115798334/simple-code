@@ -9,7 +9,7 @@ ${importJava}
  * date: ${createdTime}
  * description:
  */
-public interface ${serviceName} extends BaseService<${entityName}, ${entityId}, ${entityId}> {
+public interface ${serviceName} extends BaseService<${entityName}, ${searchDtoName}, ${entityId}, ${entityId}> {
 
 ${serviceInterface}
 }

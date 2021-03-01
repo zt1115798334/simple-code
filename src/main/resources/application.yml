@@ -58,6 +58,7 @@ templates:
     utils-user-utils-template: utils/UserUtils.java
     utils-uuid-util-template: utils/UuidUtil.java
     utils-digests-template: utils/Digests.java
+    utils-encodes-template: utils/Encodes.java
     security-shiro-base-config-template: security/config/ShiroBaseConfig.java
     security-stateless-web-subject-factory-template: security/factory/StatelessWebSubjectFactory.java
     security-jwt-filter-template: security/filter/JwtFilter.java

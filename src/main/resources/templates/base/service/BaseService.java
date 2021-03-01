@@ -14,7 +14,7 @@ import java.util.Optional;
  * date: 2018/8/9 11:40
  * description:
  */
-public interface BaseService<T, ID, U> extends ConstantService {
+public interface BaseService<T, S, ID, U> extends ConstantService {
 
     default T save(T t) {
         return null;
@@ -75,11 +75,11 @@ public interface BaseService<T, ID, U> extends ConstantService {
         return null;
     }
 
-    default List<T> findListByEntity(T t) {
+    default List<T> findListByEntity(S s) {
         return null;
     }
 
-    default Page<T> findPageByEntity(T t) {
+    default Page<T> findPageByEntity(S s) {
         return null;
     }
 

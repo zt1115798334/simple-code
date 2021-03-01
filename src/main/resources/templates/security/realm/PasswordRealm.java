@@ -76,7 +76,9 @@ public class PasswordRealm extends AuthorizingRealm {
             }
 
             //密码进行加密处理  明文为  password+name
-            Optional<User> userOptional = userService.findByAccount(name);
+            // TODO: 2021/3/1 自己添加方法
+//            Optional<User> userOptional = userService.findByAccount(name);
+            Optional<User> userOptional = null;
             if (!userOptional.isPresent()) {
                 //登录错误开始计数
                 String msg = increment(shiroLoginCountKey, shiroIsLockKey);
@@ -94,7 +96,8 @@ public class PasswordRealm extends AuthorizingRealm {
             } else {
                 //登录成功
                 //更新登录时间 last login time
-                userService.updateLastLoginTime(sysUser.getId());
+                // TODO: 2021/3/1 自己添加方法
+//                userService.updateLastLoginTime(sysUser.getId());
                 //清空登录计数
                 stringRedisService.setNotContainExpire(RedisDatabase.REDIS_ZERO, shiroLoginCountKey, "0");
                 stringRedisService.delete(RedisDatabase.REDIS_ZERO, shiroIsLockKey);
