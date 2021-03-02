@@ -1,9 +1,9 @@
 package com.zt.entity;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -14,7 +14,11 @@ import java.util.List;
  * description:
  */
 @Data
-public class Table {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Table implements Serializable {
+
+    private String code;
+
     private String tableName;
 
     private String tableNameTrans;

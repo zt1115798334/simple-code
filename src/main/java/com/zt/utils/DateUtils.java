@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 public class DateUtils {
 
     public static final String DATE_TIME_FORMAT = "yyyy/MM/dd HH:mm";
+    public static final String DATE_TIME_FORMAT_4 = "yyyyMMddHHmmssSSS";
 
     /**
      * 获取最新时间
@@ -46,14 +47,14 @@ public class DateUtils {
         if (dateTime == null) {
             return null;
         }
-        return formatDate(dateTime, DATE_TIME_FORMAT);
+        return formatDateTime(dateTime, DATE_TIME_FORMAT);
     }
 
     /**
      * 格式化时间
      *
      */
-    public static String formatDate(LocalDateTime dateTime, String dateFormat) {
+    public static String formatDateTime(LocalDateTime dateTime, String dateFormat) {
         String result = null;
         if (dateTime != null && StringUtils.isNotEmpty(dateFormat)) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);

@@ -28,6 +28,8 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 /**
  * Created with IntelliJ IDEA.
@@ -48,6 +50,8 @@ public class Controller extends BaseResultMessage {
 
     private final FreeMarkerConfigurer freeMarkerConfigurer;
 
+    private final ConcurrentLinkedQueue<Table> concurrentLinkedQueue = new ConcurrentLinkedQueue<>();
+
     @Autowired
     public Controller(TableService tableService, ColumnService columnService, TemplatesProperties templatesProperties, FreeMarkerConfigurer freeMarkerConfigurer) {
         this.tableService = tableService;
@@ -61,6 +65,7 @@ public class Controller extends BaseResultMessage {
         List<Table> tableAll;
         try {
             tableAll = tableService.findTableAll();
+            concurrentLinkedQueue.addAll(tableAll);
         } catch (SQLException e) {
             e.printStackTrace();
             return failure();
@@ -69,9 +74,13 @@ public class Controller extends BaseResultMessage {
     }
 
     @PostMapping("showColumn")
-    public ResultMessage showColumn(@RequestParam List<String> tableNames) {
+    public ResultMessage showColumn(@RequestParam List<String> tableCodes) {
         List<Table> columnAll;
         try {
+            List<String> tableNames = concurrentLinkedQueue.stream()
+                    .filter(table -> tableCodes.contains(table.getCode()))
+                    .map(Table::getTableName)
+                    .collect(Collectors.toList());
             columnAll = columnService.findColumnAll(tableNames);
         } catch (SQLException e) {
             e.printStackTrace();

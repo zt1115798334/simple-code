@@ -2,7 +2,7 @@ package com.zt.service;
 
 import com.google.common.collect.Lists;
 import com.zt.entity.Table;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.zt.utils.CodeUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +38,7 @@ public class TableService {
         List<Table> tables = Lists.newArrayList();
         while (rs.next()) {
             Table table = new Table();
+            table.setCode(CodeUtils.getTableCode());
             if (rs.getString(4) != null
                     && (rs.getString(4).equalsIgnoreCase("TABLE") || rs
                     .getString(4).equalsIgnoreCase("VIEW"))) {

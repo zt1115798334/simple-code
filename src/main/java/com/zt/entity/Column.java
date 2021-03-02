@@ -1,8 +1,11 @@
 package com.zt.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,7 +17,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Column {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Column  implements Serializable {
 
     private String tableCat;
     private String tableSchem;
