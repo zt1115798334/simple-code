@@ -1,5 +1,6 @@
 package com.zt.utils;
 
+import com.google.common.base.Objects;
 import com.zt.entity.ColumnTrans;
 
 import java.util.List;
@@ -111,6 +112,10 @@ public class CreateJavaCode {
         for (ColumnTrans columnTran : columnTrans) {
             entitySaveLogic.append(CreateJavaCode.createSaveLogic(entityNameStatement, entityNameStatementDb, columnTran)).append(CreateJavaCode.createChangeLine());
         }
+        String setCreatedTime = columnTrans.stream().anyMatch(ct -> Objects.equal(ct.getColumnName(), "createdTime")) ?
+                createTab(3) + "" + entityNameStatement + ".setCreatedTime(DateUtils.currentDateTime());\n" : "";
+        String setDeleteState = columnTrans.stream().anyMatch(ct -> Objects.equal(ct.getColumnName(), "deleteState")) ?
+                createTab(3) + "" + entityNameStatement + ".setDeleteState(UN_DELETED);\n" : "";
         return createTab(1) + "@Override\n" +
                 createTab(1) + "@Transactional(rollbackFor = RuntimeException.class)\n" +
                 createTab(1) + "public " + entityName + " save(" + entityName + " " + entityNameStatement + ") {\n" +
@@ -121,8 +126,8 @@ public class CreateJavaCode {
                 entitySaveLogic +
                 createTab(3) + "return " + repositoryNameStatement + ".save(" + entityNameStatementDb + ");\n" +
                 createTab(2) + "} else {\n" +
-                createTab(3) + "" + entityNameStatement + ".setCreatedTime(DateUtils.currentDateTime());\n" +
-                createTab(3) + "" + entityNameStatement + ".setDeleteState(UN_DELETED);\n" +
+                setCreatedTime +
+                setDeleteState +
                 createTab(3) + "return " + repositoryNameStatement + ".save(" + entityNameStatement + ");\n" +
                 createTab(2) + "}\n" +
                 createTab(1) + "}\n";
@@ -161,7 +166,7 @@ public class CreateJavaCode {
                 createTab(1) + "}\n";
     }
 
-    public static String createAllSpecification(String entityName, String entityNameStatement,String searchDtoName, String searchDtoNameStatement) {
+    public static String createAllSpecification(String entityName, String entityNameStatement, String searchDtoName, String searchDtoNameStatement) {
         return createTab(1) + "private Specification<" + entityName + "> getAllSpecification(" + searchDtoName + " " + searchDtoNameStatement + ") {\n" +
                 createTab(2) + "return Specifications.<" + entityName + ">and()\n" +
                 createTab(2) + ".equal(\"deleteState\", UN_DELETED)\n" +
@@ -283,11 +288,11 @@ public class CreateJavaCode {
                                                              String entityDtoName, String entityDtoNameStatement,
                                                              String serviceNameStatement,
                                                              String entityName, String entityNameStatement,
-                                                             String searchDtoName,String searchDtoNameStatement) {
+                                                             String searchDtoName, String searchDtoNameStatement) {
         return createTab(1) + " @PostMapping(value = \"" + findEntityNamePage + "\")\n" +
                 createTab(1) + "public ResultMessage " + findEntityNamePage + "(@RequestBody " + searchDtoName + " " + searchDtoNameStatement + ") {\n" +
                 createTab(2) + "Page<" + entityName + "> " + entityNameStatement + "Page = " + serviceNameStatement + "." + findEntityNamePage + "(" + searchDtoNameStatement + ");\n" +
-                createTab(2) + "return success("+searchDtoNameStatement+".getPageNumber(), "+searchDtoNameStatement+".getPageSize(), " + entityNameStatement + "Page.getTotalElements(),\n" +
+                createTab(2) + "return success(" + searchDtoNameStatement + ".getPageNumber(), " + searchDtoNameStatement + ".getPageSize(), " + entityNameStatement + "Page.getTotalElements(),\n" +
                 createTab(2) + "" + entityDtoName + ".entityChangeListDto(" + entityNameStatement + "Page.getContent()));\n" +
                 createTab(1) + "}\n";
     }
@@ -407,7 +412,7 @@ public class CreateJavaCode {
 
 
     public static String createImportJavaSearchDto(String packagePath) {
-        return "import "+packagePath+".base.dto.PageDto;\n" +
+        return "import " + packagePath + ".base.dto.PageDto;\n" +
                 "import com.fasterxml.jackson.annotation.JsonIgnoreProperties;\n" +
                 "import lombok.*;\n" +
                 "\n" +
@@ -428,7 +433,7 @@ public class CreateJavaCode {
                 "import lombok.AllArgsConstructor;\n" +
                 "import org.springframework.data.domain.Page;\n" +
                 "import org.springframework.validation.annotation.Validated;\n" +
-                "import org.springframework.web.bind.annotation.*;\n" ;
+                "import org.springframework.web.bind.annotation.*;\n";
     }
 
     public static void main(String[] args) {

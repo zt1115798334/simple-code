@@ -6,6 +6,7 @@ import ${packagePath}.redis.template.JSONObjectRedisTemplate;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cache.CacheManager;
@@ -141,7 +142,8 @@ public class RedisConfigMain extends CachingConfigurerSupport {
         ObjectMapper copy = objectMapper.copy();
         Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
         copy.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        copy.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        //        copy.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        copy.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,ObjectMapper.DefaultTyping.NON_FINAL);
         jackson2JsonRedisSerializer.setObjectMapper(copy);
 //        ObjectMapper om = new ObjectMapper();
 //        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);

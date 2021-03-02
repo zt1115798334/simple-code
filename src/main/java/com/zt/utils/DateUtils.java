@@ -19,7 +19,6 @@ public class DateUtils {
     /**
      * 获取最新时间
      *
-     * @return
      */
     public static LocalDateTime currentDateTime() {
         return LocalDateTime.now();
@@ -28,9 +27,6 @@ public class DateUtils {
     /**
      * 时间格式字符串转换为时间
      *
-     * @param dateTime
-     * @param dateFormat
-     * @return
      */
     public static LocalDateTime parseDateTime(String dateTime, String dateFormat) {
         LocalDateTime result = null;
@@ -45,8 +41,6 @@ public class DateUtils {
     /**
      * 格式化时间为 yyyy-MM-dd HH:mm:ss 格式
      *
-     * @param dateTime
-     * @return
      */
     public static String formatDateTime(LocalDateTime dateTime) {
         if (dateTime == null) {
@@ -58,9 +52,6 @@ public class DateUtils {
     /**
      * 格式化时间
      *
-     * @param dateTime
-     * @param dateFormat
-     * @return
      */
     public static String formatDate(LocalDateTime dateTime, String dateFormat) {
         String result = null;

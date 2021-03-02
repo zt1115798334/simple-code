@@ -2,7 +2,8 @@ package com.zt.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Objects;
-import com.zt.controller.base.AbstractController;
+import com.zt.controller.base.BaseResultMessage;
+import com.zt.controller.base.ResultMessage;
 import com.zt.entity.ColumnTrans;
 import com.zt.entity.DatabaseTrans;
 import com.zt.entity.Table;
@@ -17,10 +18,7 @@ import com.zt.utils.FileUtils;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import javax.servlet.http.HttpServletResponse;
@@ -39,7 +37,8 @@ import java.util.List;
  * description:
  */
 @RestController
-public class Controller extends AbstractController {
+@RequestMapping(value = "api")
+public class Controller extends BaseResultMessage {
 
     private final TableService tableService;
 
@@ -58,7 +57,7 @@ public class Controller extends AbstractController {
     }
 
     @PostMapping("showTable")
-    public JSONObject showTable() {
+    public ResultMessage showTable() {
         List<Table> tableAll;
         try {
             tableAll = tableService.findTableAll();
@@ -70,7 +69,7 @@ public class Controller extends AbstractController {
     }
 
     @PostMapping("showColumn")
-    public JSONObject showColumn(@RequestParam List<String> tableNames) {
+    public ResultMessage showColumn(@RequestParam List<String> tableNames) {
         List<Table> columnAll;
         try {
             columnAll = columnService.findColumnAll(tableNames);
@@ -82,8 +81,8 @@ public class Controller extends AbstractController {
     }
 
     @PostMapping("getTableTrans")
-    public JSONObject getTableTrans(HttpServletResponse response,
-                                    @RequestBody DatabaseTrans databaseTrans) throws IOException, TemplateException {
+    public ResultMessage getTableTrans(HttpServletResponse response,
+                                       @RequestBody DatabaseTrans databaseTrans) throws IOException, TemplateException {
         System.out.println("databaseTrans = " + databaseTrans);
         String projectName = databaseTrans.getProjectName();
         List<TableTrans> tableTrans = databaseTrans.getTableTrans();

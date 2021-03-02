@@ -117,7 +117,7 @@ public class RequestResponseUtil {
     public static void responseWrite(String outStr, ServletResponse response) {
 
         response.setCharacterEncoding(String.valueOf(StandardCharsets.UTF_8));
-        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         try (PrintWriter printWriter = WebUtils.toHttp(response).getWriter()) {
             printWriter.write(outStr);
         } catch (Exception e) {
