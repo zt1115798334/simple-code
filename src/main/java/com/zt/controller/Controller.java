@@ -74,13 +74,13 @@ public class Controller extends BaseResultMessage {
     }
 
     @PostMapping("showColumn")
-    public ResultMessage showColumn(@RequestParam List<String> tableCodes) {
+    public ResultMessage showColumn(@RequestParam List<String> tableNames) {
         List<Table> columnAll;
         try {
-            List<String> tableNames = concurrentLinkedQueue.stream()
-                    .filter(table -> tableCodes.contains(table.getCode()))
-                    .map(Table::getTableName)
-                    .collect(Collectors.toList());
+//            List<String> tableNames = concurrentLinkedQueue.stream()
+//                    .filter(table -> tableCodes.contains(table.getCode()))
+//                    .map(Table::getTableName)
+//                    .collect(Collectors.toList());
             columnAll = columnService.findColumnAll(tableNames);
         } catch (SQLException e) {
             e.printStackTrace();

@@ -110,7 +110,11 @@ public class CreateJavaCode {
         StringBuilder entitySaveLogic = new StringBuilder();
 
         for (ColumnTrans columnTran : columnTrans) {
-            entitySaveLogic.append(CreateJavaCode.createSaveLogic(entityNameStatement, entityNameStatementDb, columnTran)).append(CreateJavaCode.createChangeLine());
+            if (!Objects.equal(columnTran.getColumnName(), "id") &&
+                    !Objects.equal(columnTran.getColumnName(), "created_time") &&
+                    !Objects.equal(columnTran.getColumnName(), "delete_state")) {
+                entitySaveLogic.append(CreateJavaCode.createSaveLogic(entityNameStatement, entityNameStatementDb, columnTran)).append(CreateJavaCode.createChangeLine());
+            }
         }
         String setCreatedTime = columnTrans.stream().anyMatch(ct -> Objects.equal(ct.getColumnName(), "createdTime")) ?
                 createTab(3) + "" + entityNameStatement + ".setCreatedTime(DateUtils.currentDateTime());\n" : "";
@@ -138,7 +142,7 @@ public class CreateJavaCode {
         return createTab(1) + "@Override\n" +
                 createTab(1) + "@Transactional(rollbackFor = RuntimeException.class)\n" +
                 createTab(1) + "public void deleteById(Long id) {\n" +
-                createTab(2) + "Optional<" + entityName + "> " + entityNameStatementOptional + " = this.findById(id);\n" +
+                createTab(2) + "Optional<" + entityName + "> " + entityNameStatementOptional + " = " + repositoryNameStatement + ".findById(id);\n" +
                 createTab(2) + "" + entityNameStatementOptional + ".ifPresent(" + entityNameStatement + " -> {\n" +
                 createTab(3) + "" + entityNameStatement + ".setDeleteState(DELETED);\n" +
                 createTab(3) + "" + repositoryNameStatement + ".save(" + entityNameStatement + ");\n" +

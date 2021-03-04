@@ -119,17 +119,16 @@
         var projectName = $("#project-name").val();
         var createBasics = $("#createBasics").is(":checked");
 
-        var url = "/showTable";
+        var url = "/api/showTable";
         var params = {};
         execAjax(url, params, callback);
 
         function callback(result) {
-            var data = result.data;
-            var status = result.status;
-            var msg = result.msg;
-            if (status == 0) {
+            var list = result.list;
+            var meta = result.meta;
+            if (meta.code === 0) {
                 var html = '';
-                $.each(data, function (key, val) {
+                $.each(list, function (key, val) {
                     html += '<tr>\n' +
                         '        <td>\n' +
                         '            <input type="checkbox" name="table-name-c" value="' + val.tableName + '"/>\n' +
@@ -143,19 +142,18 @@
     }
 
     function showColumn(tableNames) {
-        var url = "/showColumn";
+        var url = "/api/showColumn";
         var params = {
             tableNames: tableNames
         };
         execAjax(url, params, callback);
 
         function callback(result) {
-            var data = result.data;
-            var status = result.status;
-            var msg = result.msg;
-            if (status == 0) {
+            var list = result.list;
+            var meta = result.meta;
+            if (meta.code === 0) {
                 var html = '';
-                $.each(data, function (key, val) {
+                $.each(list, function (key, val) {
                     html += '<tbody id="' + val.tableName + '"><tr>\n' +
                         '        <td class="table-name">' + val.tableName + '</td>\n' +
                         '        <td><input class="table-name-trans" type="text" value="' + val.tableNameTrans + '"></td>\n' +
@@ -186,7 +184,7 @@
             "projectName": projectName,
             "createBasics": createBasics,
         }
-        var url = "/getTableTrans";
+        var url = "/api//getTableTrans";
         execAjaxJSON(url, params, callback);
 
         function callback(result) {
