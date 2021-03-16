@@ -17,7 +17,7 @@ public class OutPrintUtils {
 
     public static void print(List<String> needZh) throws IOException {
         ResourceLoader resourceLoader = new DefaultResourceLoader();
-        String outPropertiesPath = resourceLoader.getResource("classpath:out_properties.properties").getFile().getPath();;
+        String outPropertiesPath = resourceLoader.getResource("classpath:out_properties.properties").getFile().getPath();
         String outYmlPath = resourceLoader.getResource("classpath:out_yml.yml").getFile().getPath();
         String outEnvPath = resourceLoader.getResource("classpath:out_evn.evn").getFile().getPath();
         System.out.println("path = " + outPropertiesPath);

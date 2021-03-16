@@ -107,7 +107,7 @@
                 var tableTrans = {};
                 tableTrans.tableName = tableName;
                 tableTrans.tableNameTrans = tableNameTrans;
-                tableTrans.columnTrans = columnTransArr;
+                tableTrans.columns = columnTransArr;
                 tableTransArr.push(tableTrans);
             });
             getTableTrans(tableTransArr);
@@ -142,7 +142,7 @@
     }
 
     function showColumn(tableNames) {
-        var url = "/api/showColumn";
+        var url = "/api/showColumnByTableName";
         var params = {
             tableNames: tableNames
         };
@@ -184,7 +184,7 @@
             "projectName": projectName,
             "createBasics": createBasics,
         }
-        var url = "/api//getTableTrans";
+        var url = "/api/getTableTrans";
         execAjaxJSON(url, params, callback);
 
         function callback(result) {

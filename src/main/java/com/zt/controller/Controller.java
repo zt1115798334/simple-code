@@ -73,14 +73,30 @@ public class Controller extends BaseResultMessage {
         return success(tableAll);
     }
 
-    @PostMapping("showColumn")
-    public ResultMessage showColumn(@RequestParam List<String> tableNames) {
+    @PostMapping("showColumnByTableName")
+    public ResultMessage showColumnByTableName(@RequestParam List<String> tableNames) {
         List<Table> columnAll;
         try {
 //            List<String> tableNames = concurrentLinkedQueue.stream()
 //                    .filter(table -> tableCodes.contains(table.getCode()))
 //                    .map(Table::getTableName)
 //                    .collect(Collectors.toList());
+            columnAll = columnService.findColumnAll(tableNames);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return failure();
+        }
+        return success(columnAll);
+    }
+
+    @PostMapping("showColumn")
+    public ResultMessage showColumn(@RequestParam List<String> tableCodes) {
+        List<Table> columnAll;
+        try {
+            List<String> tableNames = concurrentLinkedQueue.stream()
+                    .filter(table -> tableCodes.contains(table.getCode()))
+                    .map(Table::getTableName)
+                    .collect(Collectors.toList());
             columnAll = columnService.findColumnAll(tableNames);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -422,7 +438,7 @@ public class Controller extends BaseResultMessage {
         String lombokAnnotation = CreateJavaCode.createEntityAnnotation(tableName);
 
         //构建变量
-        List<ColumnTrans> columnTrans = tableTran.getColumnTrans();
+        List<ColumnTrans> columnTrans = tableTran.getColumns();
         StringBuilder fieldCode = new StringBuilder();
 
         for (ColumnTrans columnTran : columnTrans) {
@@ -560,7 +576,7 @@ public class Controller extends BaseResultMessage {
         //声明接口类变量
         String serviceStatementVariable = CreateJavaCode.createServiceStatementVariable(repositoryName, repositoryNameStatement);
         //接口方法
-        String serviceImplInterface = CreateJavaCode.createBaseInterfaceOfSave(entityName, entityNameStatement, entityNameStatementOptional, entityNameStatementDb, repositoryNameStatement, tableTran.getColumnTrans()) + "\n" +
+        String serviceImplInterface = CreateJavaCode.createBaseInterfaceOfSave(entityName, entityNameStatement, entityNameStatementOptional, entityNameStatementDb, repositoryNameStatement, tableTran.getColumns()) + "\n" +
                 CreateJavaCode.createBaseInterfaceOfDelete(entityName, entityNameStatement, entityNameStatementOptional, repositoryNameStatement) + "\n" +
                 CreateJavaCode.createBaseInterfaceOfFindNotDelete(entityName, repositoryNameStatement) + "\n" +
                 CreateJavaCode.createBaseInterfaceOfFindPage(entityName, entityNameStatement, searchDtoName, searchDtoNameStatement, repositoryNameStatement) + "\n" +
@@ -600,7 +616,7 @@ public class Controller extends BaseResultMessage {
         //注解
         String lombokAnnotation = CreateJavaCode.createDtoAnnotation();
         //定义变量
-        List<ColumnTrans> columnTrans = tableTran.getColumnTrans();
+        List<ColumnTrans> columnTrans = tableTran.getColumns();
         String dtoNameStatement = CamelCaseUtils.underlineToHump(dtoName);
         StringBuilder fieldCode = new StringBuilder();
         StringBuilder dtoChangeEntity = new StringBuilder();
@@ -648,7 +664,7 @@ public class Controller extends BaseResultMessage {
         //注解
         String lombokAnnotation = CreateJavaCode.createSearchDtoAnnotation();
         //定义变量
-        List<ColumnTrans> columnTrans = tableTran.getColumnTrans();
+        List<ColumnTrans> columnTrans = tableTran.getColumns();
         StringBuilder fieldCode = new StringBuilder();
         for (ColumnTrans columnTran : columnTrans) {
             String columnName = columnTran.getColumnName();

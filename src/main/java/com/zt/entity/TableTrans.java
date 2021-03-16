@@ -15,8 +15,10 @@ import java.util.List;
 public class TableTrans {
 
     private String tableName;
+
     private String tableNameTrans;
-    private List<ColumnTrans> columnTrans;
+
+    private List<ColumnTrans> columns;
 
 }
 

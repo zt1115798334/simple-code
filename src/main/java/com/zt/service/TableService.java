@@ -46,7 +46,6 @@ public class TableService {
                 System.out.print(tableName + "\t");
                 table.setTableName(tableName);
                 System.out.println(rs.getString("TABLE_NAME"));
-//                System.out.println(rs.getString("COMMENT"));
             }
             tables.add(table);
         }

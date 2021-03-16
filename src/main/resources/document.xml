@@ -1,0 +1,15 @@
+<w:r>
+    <w:t>$</w:t>
+</w:r>
+<w:r>
+    <w:rPr>
+        <w:rFonts w:hint="eastAsia"/>
+    </w:rPr>
+    <w:t>{</w:t>
+</w:r>
+<w:r>
+    <w:t xml:space="preserve">cotent</w:t>
+</w:r>
+<w:r>
+    <w:t xml:space="preserve">}</w:t>
+</w:r>

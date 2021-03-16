@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.zt.entity.Column;
 import com.zt.entity.Table;
 import com.zt.utils.CamelCaseUtils;
+import com.zt.utils.CodeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -47,33 +48,36 @@ public class ColumnService {
                 String columnNameTrans = CamelCaseUtils.underlineToHump(columnName);
                 String typeName = colRet.getString("TYPE_NAME");
                 String typeNameTrans = CamelCaseUtils.typeTrans(typeName);
-                Column c = new Column(
-                        colRet.getString("TABLE_CAT"),
-                        colRet.getString("TABLE_SCHEM"),
-                        colRet.getString("TABLE_NAME"),
-                        columnName,
-                        columnNameTrans,
-                        colRet.getString("DATA_TYPE"),
-                        typeName,
-                        typeNameTrans,
-                        colRet.getString("COLUMN_SIZE"),
-                        colRet.getString("BUFFER_LENGTH"),
-                        colRet.getString("DECIMAL_DIGITS"),
-                        colRet.getString("NUM_PREC_RADIX"),
-                        colRet.getString("NULLABLE"),
-                        colRet.getString("REMARKS"),
-                        colRet.getString("COLUMN_DEF"),
-                        colRet.getString("SQL_DATA_TYPE"),
-                        colRet.getString("SQL_DATETIME_SUB"),
-                        colRet.getString("CHAR_OCTET_LENGTH"),
-                        colRet.getString("ORDINAL_POSITION"),
-                        colRet.getString("IS_NULLABLE"),
-                        colRet.getString("SCOPE_CATALOG"),
-                        colRet.getString("SCOPE_SCHEMA"),
-                        colRet.getString("SCOPE_TABLE"),
-                        colRet.getString("SOURCE_DATA_TYPE"),
-                        colRet.getString("IS_AUTOINCREMENT"),
-                        colRet.getString("IS_GENERATEDCOLUMN"));
+                Column c = Column.builder()
+                        .code(CodeUtils.getColumnCode())
+                        .tableCat(colRet.getString("TABLE_CAT"))
+                        .tableSchema(colRet.getString("TABLE_SCHEM"))
+                        .tableName(colRet.getString("TABLE_NAME"))
+                        .columnName(columnName)
+                        .columnNameTrans(columnNameTrans)
+                        .columnType(colRet.getString("DATA_TYPE"))
+                        .typeName(typeName)
+                        .typeNameTrans(typeNameTrans)
+                        .columnSize(colRet.getString("COLUMN_SIZE"))
+                        .bufferLength(colRet.getString("BUFFER_LENGTH"))
+                        .decimalDigits(colRet.getString("DECIMAL_DIGITS"))
+                        .numPrecedingRadix(colRet.getString("NUM_PREC_RADIX"))
+                        .nullable(colRet.getString("NULLABLE"))
+                        .remarks(colRet.getString("REMARKS"))
+                        .columnDef(colRet.getString("COLUMN_DEF"))
+                        .sqlDataType(colRet.getString("SQL_DATA_TYPE"))
+                        .sqlDatetimeSub(colRet.getString("SQL_DATETIME_SUB"))
+                        .charOctetLength(colRet.getString("CHAR_OCTET_LENGTH"))
+                        .ordinalPosition(colRet.getString("ORDINAL_POSITION"))
+                        .isNullable(colRet.getString("IS_NULLABLE"))
+                        .scopeCatalog(colRet.getString("SCOPE_CATALOG"))
+                        .scopeSchema(colRet.getString("SCOPE_SCHEMA"))
+                        .scopeTable(colRet.getString("SCOPE_TABLE"))
+                        .sourceDataType(colRet.getString("SOURCE_DATA_TYPE"))
+                        .isAutoincrement(colRet.getString("IS_AUTOINCREMENT"))
+                        .isGeneratedColumn(colRet.getString("IS_GENERATEDCOLUMN"))
+                        .columnRangeSearch(true)
+                        .columnEqualSearch(true).build();
                 columns.add(c);
             }
 
