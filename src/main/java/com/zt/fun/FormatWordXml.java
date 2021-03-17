@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Stack;
@@ -39,7 +38,7 @@ public class FormatWordXml {
 
                     }
                     if ((!Objects.equal(charText, "<") && !Objects.equal(charText, ">"))
-                            && stack_n.isEmpty()&& StringUtils.isNotBlank(charText)) {
+                            && stack_n.isEmpty() && StringUtils.isNotBlank(charText)) {
                         result.append(charText);
                     }
                     if (Objects.equal(charText, "}")) {
