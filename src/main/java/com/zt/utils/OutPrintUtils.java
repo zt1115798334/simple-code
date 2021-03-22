@@ -1,10 +1,13 @@
 package com.zt.utils;
 
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,41 +27,83 @@ public class OutPrintUtils {
         System.out.println("outYmlPath = " + outYmlPath);
         System.out.println("outEnvPath = " + outEnvPath);
 
-        Map<String, String> ymlByFileName = YmlUtils.getYmlByFileName(YmlUtils.BOOTSTRAP_FILE);
-        Path tpPath = Paths.get(outPropertiesPath);
-        Map<String, Object> map = new LinkedHashMap<>();
+        String target = resourceLoader.getResource("classpath:target.yml").getFile().getPath();
+        String targetContent = String.join("\n", Files.readAllLines(Paths.get(target)));
 
-        try (BufferedWriter writer = Files.newBufferedWriter(tpPath)) {
-            for (Map.Entry<String, String> entry : ymlByFileName.entrySet()) {
-                String v;
+        Map<String, String> ymlByFileName = YmlUtils.getYmlByFileName(targetContent);
 
-                if (needZh.contains(entry.getKey())) {
-                    String keyEd = entry.getKey().toUpperCase().replace(".", "_").replace("-", "_");
-                    v = "${" + keyEd + "}";
-                    writer.write(entry.getKey() + "=" + "${" + keyEd + "}" + "\n");
-                } else {
-                    v = entry.getValue();
-                    writer.write(entry.getKey() + "=" + entry.getValue() + "\n");
-                }
-                map.put(entry.getKey(), v);
-
-            }
+        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(outPropertiesPath))) {
+            writer.write(properties(ymlByFileName, needZh));
         }
-        String d = YamlParser.flattenedMapToYaml(map);
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(outYmlPath))) {
-            writer.write(d);
+            writer.write(yml(ymlByFileName, needZh));
         }
-//        TransferUtils.properties2Yaml(outPropertiesPath, outYmlPath);
 
         Path ePath = Paths.get(outEnvPath);
         try (BufferedWriter writer = Files.newBufferedWriter(ePath)) {
-            for (Map.Entry<String, String> entry : ymlByFileName.entrySet()) {
-                if (needZh.contains(entry.getKey())) {
-                    String key = entry.getKey().toUpperCase().replace(".", "_").replace("-", "_");
-                    writer.write(key + "=" + entry.getValue() + "\n");
-                }
+            writer.write(env(ymlByFileName, needZh));
+        }
+    }
 
+    public static JSONObject ymlExtract(String ymlContext, List<String> needZh) {
+        JSONObject result = new JSONObject();
+        Map<String, String> ymlByFileName = YmlUtils.getYmlByFileName(ymlContext);
+        result.put("properties", properties(ymlByFileName, needZh));
+        result.put("yml", yml(ymlByFileName, needZh));
+        result.put("env", env(ymlByFileName, needZh));
+        return result;
+    }
+
+    public static String ymlExtractProperties(String ymlContext, List<String> needZh) {
+        Map<String, String> ymlByFileName = YmlUtils.getYmlByFileName(ymlContext);
+        return properties(ymlByFileName, needZh);
+    }
+
+    public static String ymlExtractYml(String ymlContext, List<String> needZh) {
+        Map<String, String> ymlByFileName = YmlUtils.getYmlByFileName(ymlContext);
+        return yml(ymlByFileName, needZh);
+    }
+    public static String ymlExtractEnv(String ymlContext, List<String> needZh) {
+        Map<String, String> ymlByFileName = YmlUtils.getYmlByFileName(ymlContext);
+        return env(ymlByFileName, needZh);
+    }
+
+    public static String properties(Map<String, String> ymlByFileName, List<String> needZh) {
+        StringBuilder properties = new StringBuilder();
+        for (Map.Entry<String, String> entry : ymlByFileName.entrySet()) {
+            if (needZh.contains(entry.getKey())) {
+                String keyEd = entry.getKey().toUpperCase().replace(".", "_").replace("-", "_");
+                properties.append(entry.getKey()).append("=").append("${").append(keyEd).append("}").append("\n");
+            } else {
+                properties.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
             }
         }
+        return properties.toString();
+    }
+
+    public static String yml(Map<String, String> ymlByFileName, List<String> needZh) {
+        Map<String, Object> ymlMap = new LinkedHashMap<>();
+        for (Map.Entry<String, String> entry : ymlByFileName.entrySet()) {
+            String v;
+            if (needZh.contains(entry.getKey())) {
+                String keyEd = entry.getKey().toUpperCase().replace(".", "_").replace("-", "_");
+                v = "${" + keyEd + "}";
+            } else {
+                v = entry.getValue();
+            }
+            ymlMap.put(entry.getKey(), v);
+        }
+        return YamlParser.flattenedMapToYaml(ymlMap);
+    }
+
+    public static String env(Map<String, String> ymlByFileName, List<String> needZh) {
+        StringBuilder env = new StringBuilder();
+        for (Map.Entry<String, String> entry : ymlByFileName.entrySet()) {
+            if (needZh.contains(entry.getKey())) {
+                String key = entry.getKey().toUpperCase().replace(".", "_").replace("-", "_");
+                env.append(key).append("=").append(entry.getValue()).append("\n");
+            }
+        }
+        return env.toString();
     }
 }

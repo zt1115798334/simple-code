@@ -1,5 +1,6 @@
 package com.zt.utils;
 
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 import org.yaml.snakeyaml.Yaml;
@@ -7,6 +8,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,19 +23,13 @@ public class YmlUtils {
 
     private static Map<String, String> result = new LinkedHashMap<>();
 
-    public static Map<String, String> getYmlByFileName(String file) throws IOException {
+    public static Map<String, String> getYmlByFileName(String ymlContext) {
         result = new LinkedHashMap<>();
-        if (file == null) {
-            file = BOOTSTRAP_FILE;
-        }
-        ResourceLoader resourceLoader = new DefaultResourceLoader();
-        InputStream in = resourceLoader.getResource("classpath:" + file).getInputStream();
         Yaml props = new Yaml();
-        Map<String, Object> param = props.loadAs(in, Map.class);
+        Map<String, Object> param = props.loadAs(ymlContext, Map.class);
         for (Map.Entry<String, Object> entry : param.entrySet()) {
             String key = entry.getKey();
             Object val = entry.getValue();
-
             if (val instanceof Map) {
                 forEachYaml(key, (Map<String, Object>) val);
             } else {
@@ -60,5 +56,7 @@ public class YmlUtils {
             }
         }
     }
+
+
 
 }
