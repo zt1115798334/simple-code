@@ -45,7 +45,6 @@ public class TableService {
                 String tableName = rs.getString(3).toLowerCase();
                 System.out.print(tableName + "\t");
                 table.setTableName(tableName);
-                System.out.println(rs.getString("TABLE_NAME"));
             }
             tables.add(table);
         }
