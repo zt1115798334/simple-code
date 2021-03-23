@@ -19,7 +19,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("format")
+@RequestMapping("api/format")
 public class FormatController {
 
 
@@ -28,8 +28,6 @@ public class FormatController {
                               HttpServletResponse response) throws IOException {
         String documentContent = HttpUtils.readFileContext(file);
         StringBuilder result = FormatXmlUtils.getStringBuilder(documentContent);
-        HttpUtils.downFile(response, "document.xml", response.toString());
+        HttpUtils.downFile(response, "document.xml", result.toString());
     }
-
-
 }

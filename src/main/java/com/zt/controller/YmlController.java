@@ -13,11 +13,21 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 @RestController
-@RequestMapping("yml")
+@RequestMapping("api/yml")
 public class YmlController extends BaseResultMessage {
 
+
+
+
+    @PostMapping(value = "ymlAnalysis")
+    public ResultMessage ymlAnalysis(@RequestParam(name = "file") MultipartFile file) throws IOException {
+        String documentContent = HttpUtils.readFileContext(file);
+        Set<String> result = OutPrintUtils.ymlAnalysis(documentContent);
+        return success(result);
+    }
 
     @PostMapping(value = "ymlExtract")
     public ResultMessage ymlExtract(@RequestParam(name = "file") MultipartFile file,
@@ -46,5 +56,9 @@ public class YmlController extends BaseResultMessage {
                                 @RequestParam(name = "word") List<String> word) throws IOException {
         String documentContent = HttpUtils.readFileContext(file);
         return OutPrintUtils.ymlExtractEnv(documentContent, word);
+    }
+
+    public static void main(String[] args) {
+        System.out.println(System.currentTimeMillis());
     }
 }

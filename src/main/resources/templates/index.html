@@ -119,7 +119,7 @@
         var projectName = $("#project-name").val();
         var createBasics = $("#createBasics").is(":checked");
 
-        var url = "/api/showTable";
+        var url = "/api/table/showTable";
         var params = {};
         execAjax(url, params, callback);
 
@@ -142,7 +142,7 @@
     }
 
     function showColumn(tableNames) {
-        var url = "/api/showColumnByTableName";
+        var url = "/api/table/showColumnByTableName";
         var params = {
             tableNames: tableNames
         };
@@ -184,7 +184,7 @@
             "projectName": projectName,
             "createBasics": createBasics,
         }
-        var url = "/api/getTableTrans";
+        var url = "/api/table/getTableTrans";
         execAjaxJSON(url, params, callback);
 
         function callback(result) {

@@ -11,10 +11,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class OutPrintUtils {
 
@@ -43,6 +40,11 @@ public class OutPrintUtils {
         try (BufferedWriter writer = Files.newBufferedWriter(ePath)) {
             writer.write(env(ymlByFileName, needZh));
         }
+    }
+
+    public static Set<String> ymlAnalysis(String ymlContext) {
+        Map<String, String> ymlByFileName = YmlUtils.getYmlByFileName(ymlContext);
+        return ymlByFileName.keySet();
     }
 
     public static JSONObject ymlExtract(String ymlContext, List<String> needZh) {

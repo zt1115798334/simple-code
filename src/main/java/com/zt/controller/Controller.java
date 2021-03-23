@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  * description:
  */
 @RestController
-@RequestMapping(value = "api")
+@RequestMapping(value = "api/table")
 public class Controller extends BaseResultMessage {
 
     private final TableService tableService;
