@@ -1,6 +1,7 @@
 package com.zt.utils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 import org.yaml.snakeyaml.Yaml;
@@ -42,9 +43,9 @@ public class OutPrintUtils {
         }
     }
 
-    public static Set<String> ymlAnalysis(String ymlContext) {
+    public static LinkedList<String> ymlAnalysis(String ymlContext) {
         Map<String, String> ymlByFileName = YmlUtils.getYmlByFileName(ymlContext);
-        return ymlByFileName.keySet();
+        return Lists.newLinkedList(ymlByFileName.keySet());
     }
 
     public static JSONObject ymlExtract(String ymlContext, List<String> needZh) {
