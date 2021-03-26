@@ -1,5 +1,7 @@
 server:
   port: 8083
+  tomcat:
+    basedir: /home/temp
 spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL}
@@ -20,14 +22,68 @@ spring:
       mode: LEGACYHTML5
       prefix: classpath:/templates/
       suffix: .html
-      template-resolver-order:
-        servlet:
-        content-type: text/html
   mvc:
     static-path-pattern: /static/**
 templates:
   file-path:
-    entity: entity/Entity.java
-    repository: repository/Repository.java
-    service: service/Service.java
-    serviceImpl: service/impl/ServiceImpl.java
+    entity-template: entity/Entity.java
+    repository-template: repository/Repository.java
+    service-template: service/Service.java
+    service-impl-template: service/impl/ServiceImpl.java
+    dto-template: dto/Dto.java
+    search-dto-template: dto/SearchDto.java
+    controller-template: controller/Controller.java
+    base-base-result-message-template: base/controller/BaseResultMessage.java
+    base-result-message-template: base/controller/ResultMessage.java
+    base-current_user-template: base/controller/CurrentUser.java
+    base-page-entity-template: base/entity/PageEntity.java
+    base-base-service-template: base/service/BaseService.java
+    base-constant-service-template: base/service/ConstantService.java
+    base-page-utils-template: base/service/PageUtils.java
+    base-page-dto-template: base/dto/PageDto.java
+    specification-boolean-operator-template: specification/enums/BooleanOperator.java
+    specification-match-type-template: specification/enums/MatchType.java
+    specification-specifications-template: specification/Specifications.java
+    specification-specification-utils-template: specification/SpecificationUtils.java
+    enums-delete-state-template: enums/DeleteState.java
+    enums-system-status-code-template: enums/SystemStatusCode.java
+    enums-time-units-template: enums/TimeUnits.java
+    enums-login-type-template: enums/LoginType.java
+    exception-global-exception-template: exception/GlobalException.java
+    exception-operation-exception-template: exception/OperationException.java
+    properties-account-properties-template: properties/AccountProperties.java
+    properties-jwt-properties-template: properties/JwtProperties.java
+    utils-date-utils-template: utils/DateUtils.java
+    utils-jwt-utils-template: utils/JwtUtils.java
+    utils-network-util-template: utils/NetworkUtil.java
+    utils-request-response-util-template: utils/RequestResponseUtil.java
+    utils-user-utils-template: utils/UserUtils.java
+    utils-uuid-util-template: utils/UuidUtil.java
+    utils-digests-template: utils/Digests.java
+    utils-encodes-template: utils/Encodes.java
+    security-shiro-base-config-template: security/config/ShiroBaseConfig.java
+    security-stateless-web-subject-factory-template: security/factory/StatelessWebSubjectFactory.java
+    security-jwt-filter-template: security/filter/JwtFilter.java
+    security-shiro-filter-chain-manager-template: security/filter/ShiroFilterChainManager.java
+    security-a-modular-realm-authenticator-template: security/realm/AModularRealmAuthenticator.java
+    security-jwt-realm-template: security/realm/JwtRealm.java
+    security-password-realm-template: security/realm/PasswordRealm.java
+    security-realm-manager-template: security/realm/RealmManager.java
+    security-jwt-token-template: security/token/JwtToken.java
+    security-password-token-template: security/token/PasswordToken.java
+    redis-redis-config-main-template: redis/config/RedisConfigMain.java
+    redis-redis-service-impl-template: redis/impl/RedisServiceImpl.java
+    redis-string-redis-service-impl-template: redis/impl/StringRedisServiceImpl.java
+    redis-json-array-redis-template-template: redis/template/JSONArrayRedisTemplate.java
+    redis-json-object-redis-template-template: redis/template/JSONObjectRedisTemplate.java
+    redis-redis-database-template: redis/RedisDatabase.java
+    redis-redis-service-template: redis/RedisService.java
+    redis-string-redis-service-template: redis/StringRedisService.java
+    aop-aop-utils-template: aop/utils/AopUtils.java
+    aop-abs-http-aspect-template: aop/AbsHttpAspect.java
+    aop-abs-http-aspect-save-template: aop/AbsHttpAspectSave.java
+    aop-save-log-template: aop/SaveLog.java
+    cache-cache-keys-template: cache/CacheKeys.java
+    xss-xss-utils-template: xss/utils/XssUtils.java
+    xss-xss-filter-template: xss/XssFilter.java
+    xss-xss_http_servlet_request_wrapper-template: xss/XssHttpServletRequestWrapper.java

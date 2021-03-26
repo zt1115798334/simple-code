@@ -1,0 +1,14 @@
+version: '3'
+services:
+  simple-code:
+    container_name: simple-code
+    image: registry.cn-hangzhou.aliyuncs.com/zt_images/simple-code:latest
+    env_file:
+      - simple-code/simple-code.env
+  simple-code-page:
+    container_name: simple-code-page
+    image: registry.cn-hangzhou.aliyuncs.com/zt_images/simple-code-page:latest
+    ports:
+      - 8899:8899
+    depends_on:
+      - simple-code
