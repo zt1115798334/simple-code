@@ -3,6 +3,12 @@ package com.zt.utils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,6 +31,7 @@ public class FileUtils {
 
     /**
      * 删除某个文件夹下的所有文件夹和文件
+     *
      * @return boolean
      */
     public static boolean deleteFile(String path) throws Exception {
@@ -54,4 +61,31 @@ public class FileUtils {
         return true;
     }
 
+    /**
+     * 压缩文件夹
+     *
+     * @param sourceNoteDirPath 文件夹路径
+     * @param zipFilePath       压缩包路径
+     * @throws IOException IOException
+     */
+    public static void zip(final String sourceNoteDirPath, final String zipFilePath) throws IOException {
+        Path zipFile = Files.createFile(Paths.get(zipFilePath));
+
+        Path sourceDirPath = Paths.get(sourceNoteDirPath);
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(zipFile));
+             Stream<Path> paths = Files.walk(sourceDirPath)) {
+            paths.filter(path -> !Files.isDirectory(path))
+                    .forEach(path -> {
+                        ZipEntry zipEntry = new ZipEntry(sourceDirPath.relativize(path).toString());
+                        try {
+                            zipOutputStream.putNextEntry(zipEntry);
+                            Files.copy(path, zipOutputStream);
+                            zipOutputStream.closeEntry();
+                        } catch (IOException e) {
+                            System.err.println(e);
+                        }
+                    });
+        }
+        System.out.println("Zip is created at : " + zipFile);
+    }
 }

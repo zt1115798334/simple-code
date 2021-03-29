@@ -151,6 +151,9 @@ public class Controller extends BaseResultMessage {
             createSearchDto(templateSearchDto, tableTran, createdTime, projectName);
             createController(templateController, tableTran, createdTime, projectName);
         }
+        String sourceNoteDirPath = System.getProperty("user.dir") + File.separator + "com";
+        String zipFilePath = System.getProperty("user.dir") + File.separator + projectName + ".zip";
+        FileUtils.zip(sourceNoteDirPath, zipFilePath);
         String downFileName = "test";
         response.setCharacterEncoding("utf-8");
         response.setContentType("application/ms-word;charset=utf-8");
@@ -585,7 +588,7 @@ public class Controller extends BaseResultMessage {
                 CreateJavaCode.createServiceImplInterfaceOfDelete(deleteEntityName) + "\n" +
                 CreateJavaCode.createServiceImplInterfaceOfFind(findEntityName, entityName) + "\n" +
                 CreateJavaCode.createServiceImplInterfaceOfFindPage(findEntityNamePage, entityName, entityNameStatement, searchDtoName, searchDtoNameStatement) + "\n" +
-                CreateJavaCode.createAllSpecification(entityName, entityNameStatement, searchDtoName, searchDtoNameStatement,columnTrans) + "\n";
+                CreateJavaCode.createAllSpecification(entityName, entityNameStatement, searchDtoName, searchDtoNameStatement, columnTrans) + "\n";
 
         JSONObject javaCode = new JSONObject();
         javaCode.put("serviceImplPackageName", serviceImplPackageName);
