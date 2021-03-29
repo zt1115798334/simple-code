@@ -442,15 +442,15 @@ public class Controller extends BaseResultMessage {
         StringBuilder fieldCode = new StringBuilder();
 
         for (ColumnTrans columnTran : columnTrans) {
-            String columnName = columnTran.getColumnName();
-            String columnType = columnTran.getColumnType();
+            String columnNameTrans = columnTran.getColumnNameTrans();
+            String typeNameTrans = columnTran.getTypeNameTrans();
             String columnRemarks = columnTran.getColumnRemarks();
 
             fieldCode.append(CreateJavaCode.createRemarks(columnRemarks)).append(CreateJavaCode.createChangeLine());
-            if (Objects.equal("id", columnName)) {
+            if (Objects.equal("id", columnNameTrans)) {
                 fieldCode.append(CreateJavaCode.createFieldId());
             }
-            fieldCode.append(CreateJavaCode.createField(columnType, columnName)).append(CreateJavaCode.createChangeLine());
+            fieldCode.append(CreateJavaCode.createField(typeNameTrans, columnNameTrans)).append(CreateJavaCode.createChangeLine());
         }
 
         JSONObject javaCode = new JSONObject();
@@ -539,6 +539,7 @@ public class Controller extends BaseResultMessage {
     private void createServiceImpl(Template templateEntity, TableTrans tableTran, String createdTime, String projectName) throws IOException, TemplateException {
         String packagePath = CreateJavaCode.createPackagePath(projectName);
         String entityName = tableTran.getTableNameTrans();
+        List<ColumnTrans> columnTrans = tableTran.getColumns();
         String entityNameStatement = CreateJavaCode.toLowerCaseFirstOne(entityName);
         //类路径
         String serviceImplPackageName = packagePath + ".service.impl";
@@ -576,7 +577,7 @@ public class Controller extends BaseResultMessage {
         //声明接口类变量
         String serviceStatementVariable = CreateJavaCode.createServiceStatementVariable(repositoryName, repositoryNameStatement);
         //接口方法
-        String serviceImplInterface = CreateJavaCode.createBaseInterfaceOfSave(entityName, entityNameStatement, entityNameStatementOptional, entityNameStatementDb, repositoryNameStatement, tableTran.getColumns()) + "\n" +
+        String serviceImplInterface = CreateJavaCode.createBaseInterfaceOfSave(entityName, entityNameStatement, entityNameStatementOptional, entityNameStatementDb, repositoryNameStatement, columnTrans) + "\n" +
                 CreateJavaCode.createBaseInterfaceOfDelete(entityName, entityNameStatement, entityNameStatementOptional, repositoryNameStatement) + "\n" +
                 CreateJavaCode.createBaseInterfaceOfFindNotDelete(entityName, repositoryNameStatement) + "\n" +
                 CreateJavaCode.createBaseInterfaceOfFindPage(entityName, entityNameStatement, searchDtoName, searchDtoNameStatement, repositoryNameStatement) + "\n" +
@@ -584,7 +585,7 @@ public class Controller extends BaseResultMessage {
                 CreateJavaCode.createServiceImplInterfaceOfDelete(deleteEntityName) + "\n" +
                 CreateJavaCode.createServiceImplInterfaceOfFind(findEntityName, entityName) + "\n" +
                 CreateJavaCode.createServiceImplInterfaceOfFindPage(findEntityNamePage, entityName, entityNameStatement, searchDtoName, searchDtoNameStatement) + "\n" +
-                CreateJavaCode.createAllSpecification(entityName, entityNameStatement, searchDtoName, searchDtoNameStatement) + "\n";
+                CreateJavaCode.createAllSpecification(entityName, entityNameStatement, searchDtoName, searchDtoNameStatement,columnTrans) + "\n";
 
         JSONObject javaCode = new JSONObject();
         javaCode.put("serviceImplPackageName", serviceImplPackageName);
@@ -622,14 +623,14 @@ public class Controller extends BaseResultMessage {
         StringBuilder dtoChangeEntity = new StringBuilder();
         StringBuilder entityChangeDto = new StringBuilder();
         for (ColumnTrans columnTran : columnTrans) {
-            String columnName = columnTran.getColumnName();
-            String columnType = columnTran.getColumnType();
+            String columnNameTrans = columnTran.getColumnNameTrans();
+            String columnType = columnTran.getTypeNameTrans();
             String columnRemarks = columnTran.getColumnRemarks();
-            if (!Objects.equal("userId", columnName) && !Objects.equal("deleteState", columnName)) {
+            if (!Objects.equal("userId", columnNameTrans) && !Objects.equal("deleteState", columnNameTrans)) {
                 fieldCode.append(CreateJavaCode.createRemarks(columnRemarks)).append(CreateJavaCode.createChangeLine());
-                fieldCode.append(CreateJavaCode.createField(columnType, columnName)).append(CreateJavaCode.createChangeLine());
-                dtoChangeEntity.append(CreateJavaCode.createTab(3)).append(".").append(columnName).append("(").append(dtoNameStatement).append(CreateJavaCode.createGet(columnName)).append(")").append("\n");
-                entityChangeDto.append(CreateJavaCode.createTab(3)).append(".").append(columnName).append("(").append(entityNameStatement).append(CreateJavaCode.createGet(columnName)).append(")").append("\n");
+                fieldCode.append(CreateJavaCode.createField(columnType, columnNameTrans)).append(CreateJavaCode.createChangeLine());
+                dtoChangeEntity.append(CreateJavaCode.createTab(3)).append(".").append(columnNameTrans).append("(").append(dtoNameStatement).append(CreateJavaCode.createGet(columnNameTrans)).append(")").append("\n");
+                entityChangeDto.append(CreateJavaCode.createTab(3)).append(".").append(columnNameTrans).append("(").append(entityNameStatement).append(CreateJavaCode.createGet(columnNameTrans)).append(")").append("\n");
             }
         }
         String entityNameListStatement = entityNameStatement + "List";
@@ -667,15 +668,15 @@ public class Controller extends BaseResultMessage {
         List<ColumnTrans> columnTrans = tableTran.getColumns();
         StringBuilder fieldCode = new StringBuilder();
         for (ColumnTrans columnTran : columnTrans) {
-            String columnName = columnTran.getColumnName();
-            String columnType = columnTran.getColumnType();
+            String columnNameTrans = columnTran.getColumnNameTrans();
+            String typeNameTrans = columnTran.getTypeNameTrans();
             String columnRemarks = columnTran.getColumnRemarks();
-            if (!Objects.equal("userId", columnName) && !Objects.equal("deleteState", columnName)) {
+            if (!Objects.equal("userId", columnNameTrans) && !Objects.equal("deleteState", columnNameTrans)) {
                 if (columnTran.getColumnEqualSearch()) {
-                    fieldCode.append(CreateJavaCode.createSearchEqualSearchDto(columnName, columnType, columnRemarks));
+                    fieldCode.append(CreateJavaCode.createSearchEqualSearchDto(columnNameTrans, typeNameTrans, columnRemarks));
                 }
                 if (columnTran.getColumnRangeSearch()) {
-                    fieldCode.append(CreateJavaCode.createSearchRangeSearchDto(columnName, columnType, columnRemarks));
+                    fieldCode.append(CreateJavaCode.createSearchRangeSearchDto(columnNameTrans, typeNameTrans, columnRemarks));
                 }
             }
         }

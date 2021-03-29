@@ -76,8 +76,8 @@ public class ColumnService {
                         .sourceDataType(colRet.getString("SOURCE_DATA_TYPE"))
                         .isAutoincrement(colRet.getString("IS_AUTOINCREMENT"))
                         .isGeneratedColumn(colRet.getString("IS_GENERATEDCOLUMN"))
-                        .columnRangeSearch(true)
-                        .columnEqualSearch(true).build();
+                        .columnRangeSearch(false)
+                        .columnEqualSearch(false).build();
                 columns.add(c);
             }
 

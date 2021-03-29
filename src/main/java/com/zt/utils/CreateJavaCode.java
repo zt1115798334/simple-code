@@ -55,8 +55,8 @@ public class CreateJavaCode {
                 createTab(1) + "*/";
     }
 
-    public static String createField(String columnType, String columnName) {
-        return createTab(1) + "private " + columnType + " " + columnName + ";";
+    public static String createField(String typeNameTrans, String columnName) {
+        return createTab(1) + "private " + typeNameTrans + " " + columnName + ";";
     }
 
     public static String createGetFun(String columnType, String columnName) {
@@ -86,7 +86,7 @@ public class CreateJavaCode {
     }
 
     public static String createSaveLogic(String entityNameStatement, String entityNameStatementDb, ColumnTrans columnTran) {
-        return createTab(3) + entityNameStatementDb + ".set" + toUpperCaseFirstOne(columnTran.getColumnName()) + "(" + entityNameStatement + ".get" + toUpperCaseFirstOne(columnTran.getColumnName()) + "());";
+        return createTab(3) + entityNameStatementDb + ".set" + toUpperCaseFirstOne(columnTran.getColumnNameTrans()) + "(" + entityNameStatement + ".get" + toUpperCaseFirstOne(columnTran.getColumnNameTrans()) + "());";
     }
 
     public static String createBuilder(String entityName) {
@@ -110,15 +110,15 @@ public class CreateJavaCode {
         StringBuilder entitySaveLogic = new StringBuilder();
 
         for (ColumnTrans columnTran : columnTrans) {
-            if (!Objects.equal(columnTran.getColumnName(), "id") &&
-                    !Objects.equal(columnTran.getColumnName(), "created_time") &&
-                    !Objects.equal(columnTran.getColumnName(), "delete_state")) {
+            if (!Objects.equal(columnTran.getColumnNameTrans(), "id") &&
+                    !Objects.equal(columnTran.getColumnNameTrans(), "created_time") &&
+                    !Objects.equal(columnTran.getColumnNameTrans(), "delete_state")) {
                 entitySaveLogic.append(CreateJavaCode.createSaveLogic(entityNameStatement, entityNameStatementDb, columnTran)).append(CreateJavaCode.createChangeLine());
             }
         }
-        String setCreatedTime = columnTrans.stream().anyMatch(ct -> Objects.equal(ct.getColumnName(), "createdTime")) ?
+        String setCreatedTime = columnTrans.stream().anyMatch(ct -> Objects.equal(ct.getColumnNameTrans(), "createdTime")) ?
                 createTab(3) + "" + entityNameStatement + ".setCreatedTime(DateUtils.currentDateTime());\n" : "";
-        String setDeleteState = columnTrans.stream().anyMatch(ct -> Objects.equal(ct.getColumnName(), "deleteState")) ?
+        String setDeleteState = columnTrans.stream().anyMatch(ct -> Objects.equal(ct.getColumnNameTrans(), "deleteState")) ?
                 createTab(3) + "" + entityNameStatement + ".setDeleteState(UN_DELETED);\n" : "";
         return createTab(1) + "@Override\n" +
                 createTab(1) + "@Transactional(rollbackFor = RuntimeException.class)\n" +
@@ -170,9 +170,20 @@ public class CreateJavaCode {
                 createTab(1) + "}\n";
     }
 
-    public static String createAllSpecification(String entityName, String entityNameStatement, String searchDtoName, String searchDtoNameStatement) {
+    public static String createAllSpecification(String entityName, String entityNameStatement, String searchDtoName, String searchDtoNameStatement, List<ColumnTrans> columnTrans) {
+        StringBuilder sb = new StringBuilder();
+        for (ColumnTrans columnTran : columnTrans) {
+            String columnNameTrans = columnTran.getColumnNameTrans();
+            if (columnTran.getColumnEqualSearch()) {
+                sb.append(".equal(\"").append(columnNameTrans).append("\", ").append(searchDtoNameStatement).append(createGet(columnNameTrans)).append(")\n");
+            }
+            if (columnTran.getColumnRangeSearch()) {
+//                sb.append();
+            }
+        }
         return createTab(1) + "private Specification<" + entityName + "> getAllSpecification(" + searchDtoName + " " + searchDtoNameStatement + ") {\n" +
                 createTab(2) + "return Specifications.<" + entityName + ">and()\n" +
+                sb.toString() +
                 createTab(2) + ".equal(\"deleteState\", UN_DELETED)\n" +
                 createTab(2) + ".equal(\"userId\", " + searchDtoNameStatement + ".getUserId())\n" +
                 createTab(2) + ".build();\n" +
@@ -325,12 +336,13 @@ public class CreateJavaCode {
     }
 
     public static String createSearchDtoAnnotation() {
-        return "@NoArgsConstructor\n" +
+        return
+//                "@NoArgsConstructor\n" +
 //                "@AllArgsConstructor\n" +
                 "@Builder\n" +
-                "@EqualsAndHashCode(callSuper = true)\n" +
-                "@Data\n" +
-                "@JsonIgnoreProperties(ignoreUnknown = true)";
+                        "@EqualsAndHashCode(callSuper = true)\n" +
+                        "@Data\n" +
+                        "@JsonIgnoreProperties(ignoreUnknown = true)";
     }
 
     public static String createControllerAnnotation(String entityNameStatement) {
@@ -420,6 +432,7 @@ public class CreateJavaCode {
                 "import com.fasterxml.jackson.annotation.JsonIgnoreProperties;\n" +
                 "import lombok.*;\n" +
                 "\n" +
+                "import java.time.LocalDateTime;\n" +
                 "import java.util.List;";
     }
 

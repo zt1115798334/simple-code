@@ -11,8 +11,8 @@ import lombok.Data;
  */
 @Data
 public class ColumnTrans {
-    private String columnName;
-    private String columnType;
+    private String columnNameTrans;
+    private String typeNameTrans;
     private String columnRemarks;
     private Boolean columnRangeSearch;
     private Boolean columnEqualSearch;
