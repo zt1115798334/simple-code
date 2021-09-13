@@ -78,6 +78,14 @@ public class YmlController extends BaseResultMessage {
         return OutPrintUtils.ymlExtractYml(documentContent, getLabel(key));
     }
 
+
+    @PostMapping(value = "ymlExtractYmlEnv")
+    public String ymlExtractYmlEnv(@RequestParam(name = "file") MultipartFile file,
+                                @RequestParam(name = "key") List<Integer> key) throws IOException {
+        String documentContent = HttpUtils.readFileContext(file);
+        return OutPrintUtils.ymlExtractYmlEnv(documentContent, getLabel(key));
+    }
+
     @PostMapping(value = "ymlExtractEnv")
     public String ymlExtractEnv(@RequestParam(name = "file") MultipartFile file,
                                 @RequestParam(name = "key") List<Integer> key) throws IOException {

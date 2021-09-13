@@ -4,15 +4,16 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class OutPrintUtils {
 
@@ -53,6 +54,7 @@ public class OutPrintUtils {
         Map<String, String> ymlByFileName = YmlUtils.getYmlByFileName(ymlContext);
         result.put("properties", properties(ymlByFileName, needZh));
         result.put("yml", yml(ymlByFileName, needZh));
+        result.put("ymlEnv", ymlEnv(ymlByFileName, needZh));
         result.put("env", env(ymlByFileName, needZh));
         return result;
     }
@@ -66,6 +68,12 @@ public class OutPrintUtils {
         Map<String, String> ymlByFileName = YmlUtils.getYmlByFileName(ymlContext);
         return yml(ymlByFileName, needZh);
     }
+
+    public static String ymlExtractYmlEnv(String ymlContext, List<String> needZh) {
+        Map<String, String> ymlByFileName = YmlUtils.getYmlByFileName(ymlContext);
+        return ymlEnv(ymlByFileName, needZh);
+    }
+
     public static String ymlExtractEnv(String ymlContext, List<String> needZh) {
         Map<String, String> ymlByFileName = YmlUtils.getYmlByFileName(ymlContext);
         return env(ymlByFileName, needZh);
@@ -91,6 +99,21 @@ public class OutPrintUtils {
             if (needZh.contains(entry.getKey())) {
                 String keyEd = entry.getKey().toUpperCase().replace(".", "_").replace("-", "_");
                 v = "${" + keyEd + "}";
+            } else {
+                v = entry.getValue();
+            }
+            ymlMap.put(entry.getKey(), v);
+        }
+        return YamlParser.flattenedMapToYaml(ymlMap);
+    }
+
+    public static String ymlEnv(Map<String, String> ymlByFileName, List<String> needZh) {
+        Map<String, Object> ymlMap = new LinkedHashMap<>();
+        for (Map.Entry<String, String> entry : ymlByFileName.entrySet()) {
+            String v;
+            if (needZh.contains(entry.getKey())) {
+                String keyEd = entry.getKey().toUpperCase().replace(".", "_").replace("-", "_");
+                v = "${" + keyEd + ":" + entry.getValue() + "}";
             } else {
                 v = entry.getValue();
             }
